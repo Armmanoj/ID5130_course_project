@@ -64,4 +64,24 @@ def plot_path_on_grid(Grid, paths):
     # Show the plot
     plt.show()
 
+def plot_paths_on_grid(Grid, paths):
+    # Plot the colormap of Grid
+    plt.imshow(Grid, cmap='viridis', origin='lower')
+
+    # Plot the paths on top of the colormap with slight spacing for overlapping lines
+    for i, path in enumerate(paths):
+        # Add a small offset to the y-values of the path to space out overlapping lines
+        offset = (i-len(paths)//2) * 0.05  # Adjust the offset as needed
+        y_offset = path[1::2] + offset
+        plt.plot(path[::2]+offset, y_offset, 'r-o', linewidth=2)
+
+    # Add a colorbar
+    plt.colorbar()
+
+    # Show the plot
+    plt.show()
+
+plot_path_on_grid(Grid, path)
+plot_paths_on_grid(Grid, path)
+
 plot_path_on_grid(Grid, path[0:2])
