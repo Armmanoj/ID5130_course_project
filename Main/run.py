@@ -1,6 +1,5 @@
 # first open output file and display grid graph as heat map 
-# 
-# Gridxutomatically check both the generated wires as well as the "heat map" solution, and return the number of incorrectly or not routed nets, and violations or "shorts".
+# Gridx automatically check both the generated wires as well as the "heat map" solution, and return the number of incorrectly or not routed nets, and violations or "shorts".
 import matplotlib.pyplot as plt
 import numpy as np
 import sys
@@ -36,18 +35,6 @@ def read_out_file(filename):
             wiring.append(np.array(list(map(int, line.split()))))
     
     return Gridx, Gridy, wiring, M, N
-filename = sys.argv[1]  
-Gridx, Gridy, path, M, N = read_out_file(filename)
-print(M,N)
-# Making heatmap
-Grid = np.zeros((M, N))
-for i in range(M):
-    for j in range(N):
-        r = Gridx[i,j]
-        l = Gridx[i,j+1]
-        d = Gridy[i,j]
-        u = Gridy[i+1,j]
-        Grid[i,j] = (r+l+u+d)*0.25
 
 def plot_path_on_grid(Grid, paths):
     # Plot the colormap of Grid
@@ -81,7 +68,20 @@ def plot_paths_on_grid(Grid, paths):
     # Show the plot
     plt.show()
 
+filename = sys.argv[1]  
+Gridx, Gridy, path, M, N = read_out_file(filename)
+print(M,N)
+# Making heatmap
+Grid = np.zeros((M, N))
+for i in range(M):
+    for j in range(N):
+        r = Gridx[i,j]
+        l = Gridx[i,j+1]
+        d = Gridy[i,j]
+        u = Gridy[i+1,j]
+        Grid[i,j] = (r+l+u+d)*0.25
+
 plot_path_on_grid(Grid, path)
 plot_paths_on_grid(Grid, path)
 
-plot_path_on_grid(Grid, path[0:2])
+
