@@ -1,0 +1,18 @@
+;grid graph, 4 4 is M N is = dimensions of array
+; format is {demand of each of the 3 edges in 1st row/n 2nd row/n .../n{demand of each of the 3 edges in 1st col/n2nd col/n...}
+;nets in form x1 y1 x2 y2 ... after the grid graph,  no comments allowed after the 1st non-comment line
+4 4
+0 1 1 0 0
+0 0 0 1 0
+0 1 1 1 0
+0 0 1 0 0
+0 0 0 0
+0 0 1 1
+0 2 0 2
+0 1 0 1
+0 0 0 0
+0 3 2 3 2 2 3 2 3 0
+1 2 1 0 2 0
+2 1 3 1 3 3
+0 1 2 1
+1 1 1 2
