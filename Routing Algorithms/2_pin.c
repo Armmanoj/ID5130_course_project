@@ -33,7 +33,7 @@ void reconstructPath(Gen* current);
 
 Route routes[NUM_POINTS] = {
     {{68, 84}, {70, 77}},
-   // {{67, 83}, {69, 78}}, // Comment this line and run the algorithm again, it won't show segmentation fault
+    {{67, 83}, {69, 78}}, // Comment this line and run the algorithm again, it won't show segmentation fault
     {{44, 31}, {42, 31}},
     {{86, 47}, {94, 42}},
     {{20, 9}, {22, 6}},
