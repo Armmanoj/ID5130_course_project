@@ -46,11 +46,9 @@ void Router(int M, int N, int C, int V, int* net_x, int* net_y) {
 int main() {
     int M,N,C,V;
 
-    // Example nets (corners of each path)
-    int net_x[] = {1, 2, 3, 4};
-    int net_y[] = {1, 2, 3, 4};
+    int net_x[M+1];
+    int net_y[N+1];
 
-    // Call the routing function
     Router(M, N, C, V, net_x, net_y);
 
     return 0;
