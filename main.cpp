@@ -35,24 +35,21 @@ int main(int argc, char *argv[]) {
     int M, N, C, v;
     std::vector<int> x1, y1, x2, y2;
     readDataFromFile(filename, &M, &N, &C, &v, x1, y1, x2, y2);
+    Netlist Netlist(x1,y1,x2,y2);
 
     // create the return data structures, Gx, Gy are dynamically allocated with pointers due to large size, and as it will be passed to GPU
-    int* Gx,Gy;
-    Gx = (int*)calloc((N+1)*M*sizeof(int)); // initializing the weights to zero
-    Gy = (int*)calloc((M+1)*N*sizeof(int)); // not stored in memory efficient manner
-    vector<vector<int>> net_x;
-    vector<vector<int>> net_y;
+    Grid_Graph G(M,N,C,v);
+
     //Do the routing
     float cost;
+    cost = Netlist.SA_patternroute(G); 
     int iterations_sssp;
-    Router(M,N,C,v,Gx,Gy,net_x,net_y, &cost, &iterations,x1,y1,x2,y2);
+    cost = Netlist.mazer(G, 1.5) ;
+    cout << "Final cost is " << cost << std::endl; 
     // Store the result
-    StoreToFile(fileout, M, N, Gx,Gy, net_x,net_y);
-    free(Gx);
-    free(Gy);
-    Gx=NULL;
-    Gy=NULL;
+    StoreToFile(fileout, G, Netlist);
     return 0;
 }
 
 
+t

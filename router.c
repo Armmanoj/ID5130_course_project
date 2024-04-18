@@ -1,5 +1,5 @@
-#include<stdio.h>
-
+#include "main.h"
+using namespace std;
     /*
     M rows
     N columns
@@ -20,27 +20,28 @@ void task_scheduler(int M, int N, int* net_x, int* net_y, int** batches_x, int**
 void sssp_algorithm(int M, int N, int* Gx, int* Gy, int* paths_x, int* paths_y, int paths_count);
 void pattern_router(int M, int N, int* Gx, int* Gy, int** batch_x1, int** batch_y1, int** batch_x2, int** batch_y2, int num_batches);
 
-void Router(int M, int N, int C, int V, int* net_x, int* net_y) {
-    int *Gx, *Gy; 
-    int **batches_x, **batches_y;
-    int *batch_sizes;
+void Router(int M, int N, int C, int V, int* Gx, int* Gy, vector<int> net_x, vector<int> net_y, vector<int> x1,vector<int> y1,vector<int> x2,vector<int> y2) {
+   /*
+--- variables initialized- 
+    batches
+    num_batches
+    count
+--- functions called-
+    task_scheduler
+    pattern_route_manager
+    */
+    int *batches;q
     int num_batches;
-
-    // Get batches of tasks to be routed
-    task_scheduler(M, N, net_x, net_y, batches_x, batches_y, batch_sizes, &num_batches);
+    int count = x1.size();
+    // Get batches of tasks to be routed, this will be stored in batches as
+    task_scheduler_pr(M, N, x1,x2,x3,x4, batches, x1.size());
 
     // Allocate space for SSSP outputs, assuming it outputs in pairs (x1, y1, x2, y2)
     int **paths_x1 = malloc(num_batches * sizeof(int*));
     int **paths_y1 = malloc(num_batches * sizeof(int*));
     int **paths_x2 = malloc(num_batches * sizeof(int*));
     int **paths_y2 = malloc(num_batches * sizeof(int*));
-
-    for (int i = 0; i < num_batches; i++) {
-        sssp_algorithm(M, N, C, V, Gx, Gy, batches_x[i], batches_y[i], batch_sizes[i]);
-    }
-
-    
-    pattern_router(M, N, C, V, Gx, Gy, paths_x1, paths_y1, paths_x2, paths_y2, num_batches);
+    pattern_route_manager(M, N, C, V, Gx, Gy, paths_x1, paths_y1, paths_x2, paths_y2);
 }
 
 int main() {

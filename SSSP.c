@@ -1,5 +1,15 @@
-#include <openacc.h>
+
 #include <cmath>
+
+void SSSP_manager(int M, int N, int C, int v, int* Gx,int* Gy, <vector<vector<int>> bx1, <vector<vector<int>> by1,<vector<vector<int>> bx2,<vector<vector<int>> by2){
+    int count = bx1.size();
+    for (int i=0; i<1000; i++){
+        for (int j =0; j<cont;j++){
+            SSSP(Gx,Gy,)
+        }
+    }
+    return;
+}
 
 void SSSP(int (*Gx)[], int (*Gy)[], int x,int y,int x1,int y1,int xl, int yl, int xu, int yu, int (*cost)[], char (*Sdir)[], int (*hist)[]){
     /*

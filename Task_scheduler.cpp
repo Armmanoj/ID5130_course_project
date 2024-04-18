@@ -1,5 +1,5 @@
 #include "main.h"
-
+using namespace std;
 inline int connected(int* x1,int* y1,int* x2,int* y2,int i,int j){
     return !((x1[i]<x1[j]<x2[i])|(x1[i]<x2[j]<x2[i]))&((y1[i]<y1[j]<y2[i])|(y1[i]<y2[j]<y2[i]));
 }
@@ -9,6 +9,9 @@ void task_manager(int* x1,
     int* y1,
     int* y2,
     int* batches, int N){
+    // initialize batches, the array that stores the batch id for each net
+    batches = (int*)calloc(N*sizeof(int));
+        // N is the number of nets
     // randomly jumble the nets using Fisher-Yates
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
     int temp;
@@ -21,11 +24,6 @@ void task_manager(int* x1,
         temp = y1[i]; y1[i] = y1[j]; y1[j] = temp;
         temp = x2[i]; x2[i] = x2[j]; x2[j] = temp;
         temp = y2[i]; y2[i] = y2[j]; y2[j] = temp;
-    }
-
-    // initialize batches, the array that stores the batch id for each net
-    for (int i=0; i<N;i++){
-        batches[i]=0;
     }
 
     // greedy algorithm for minimal clique cover
@@ -46,6 +44,8 @@ void task_manager(int* x1,
 
     // sort the nets, ideally using radix sort if GPU or CPU, and merge or odd-even sort for MPI 
     bubbleSort(batches, x1, y1, x2, y2, N);
+    free(batches);
+    batches=NULL;
 } 
 
 void bubbleSort(int* arr,int* x1,int* y1,int* x2,int* y2, int n) {
@@ -65,3 +65,4 @@ void bubbleSort(int* arr,int* x1,int* y1,int* x2,int* y2, int n) {
         }
     } while (swapped);
 }
+vector<int> count_batches
