@@ -33,18 +33,16 @@ int main(int argc, char *argv[]) {
 
     // read data from file
     int M, N, C, v;
-    std::vector<int> x1, y1, x2, y2;
+    std::vector<uint16_t> x1, y1, x2, y2;
     readDataFromFile(filename, &M, &N, &C, &v, x1, y1, x2, y2);
-    Netlist Netlist(x1,y1,x2,y2);
-
     // create the return data structures, Gx, Gy are dynamically allocated with pointers due to large size, and as it will be passed to GPU
     Grid_Graph G(M,N,C,v);
 
+    Netlist Netlist(x1,y1,x2,y2, Grid_Graph.v);
     //Do the routing
     float cost;
     cost = Netlist.SA_patternroute(G); 
-    int iterations_sssp;
-    cost = Netlist.mazer(G, 1.5) ;
+    cost = Netlist.mazer(G) ;
     cout << "Final cost is " << cost << std::endl; 
     // Store the result
     StoreToFile(fileout, G, Netlist);

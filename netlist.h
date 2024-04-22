@@ -3,29 +3,30 @@
 
 // Struct representing a net
 struct Net {
-    int a, b, c, d;
+    uint16_t x1, y1, x2, y2;
+    vector<Point>* route;
+
+    Net(int16_t v1, int16_t v2, int16_t v3, int16_t v4, size_t size) 
+        : x1(v1), y1(v2), x2(v3), y2(v4), route(size) {}
+    // Destructor to release memory allocated for the vector
+    ~Net() {
+        delete route;
+    }
 };
 
-// Class representing a batch
-class Batch {
-    // Add Batch implementation as needed
-};
-
-// Forward declaration of Grid_Graph class
-class Grid_Graph;
-
+struct Point {
+    uint16_t x;
+    uint16_t y;
+}
 // Class representing the netlist
 class Netlist {
 private:
-    std::vector<Net> nets;      // Vector of nets
-    std::vector<Batch> batches; // Vector of batches
-
-    // Helper function to initialize batches
-    void initializeBatches();
+    vector<Net> nets;      // Vector of nets
+    vector<Batch> batches; // Vector of batches
 
 public:
     // Constructor
-    Netlist(const std::vector<int>& v1, const std::vector<int>& v2, const std::vector<int>& v3, const std::vector<int>& v4);
+    Netlist(const std::vector<int>& v1, const std::vector<int>& v2, const std::vector<int>& v3, const std::vector<int>& v4, float v);
 
     // Function to schedule patterns
     void pattern_schedule();
@@ -38,4 +39,7 @@ public:
 
     // Function to perform maze routing
     float mazer(Grid_Graph G);
+
+    inline bool overlap(const Net& net1, const Net& net2, float k);
+    inline bool checkRectangleIntersection(const Net& net1, const Net& net2) 
 };

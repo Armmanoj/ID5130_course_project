@@ -10,7 +10,7 @@ is ignored has 4 integers seperated by a whitespace, which are M, N, C, and v. E
 seperated by a white space, which are the ith elements of 4 vectors x1,y1,x2,y2. Write a cpp function that creates these 4 arrays as well as 
 M,N,C and v. The input to the function are pointers to M,N,C,v and vectors x1,y1,x2,y2 and the function stores the values read in them.
 */
-void readDataFromFile(const char* filename, int* M, int* N, int* C, int* v, std::vector<int>& x1, std::vector<int>& y1, std::vector<int>& x2, std::vector<int>& y2) {
+void readDataFromFile(const char* filename, uint16_t* M, uint16_t* N, int* C, int* v, std::vector<uint16_t>& x1, std::vector<uint16_t>& y1, std::vector<uint16_t>& x2, std::vector<uint16_t>& y2) {
     std::ifstream file(filename);
     std::string line;
     int lineNumber = 0;
@@ -23,7 +23,7 @@ void readDataFromFile(const char* filename, int* M, int* N, int* C, int* v, std:
             }
             
             std::istringstream iss(line);
-            int a, b, c, d;
+            uint16_t a, b, c, d;
             iss >> a >> b >> c >> d;
 
             if (lineNumber == 0) {

@@ -1,14 +1,17 @@
+
+
 class Grid_Graph {
 private:
-    int* Gx;
-    int* Gy;
-    int M;
-    int N;
+    uint8_t* Gx;
+    uint8_t* Gy;
+    int C;
+    uint16_t M;
+    uint16_t N;
     float v;
 
 public:
     // Constructor
-    Grid_Graph(int M_val, int N_val, int C_val, float v_val);
+    Grid_Graph(uint16_t M_val, uint16_t N_val, uint8_t C_val, float v_val);
 
     // Destructor
     ~Grid_Graph();

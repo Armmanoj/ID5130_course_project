@@ -6,16 +6,18 @@
 class Batch {
 private:
     std::vector<Net> nets;  // Vector of nets
-    std::vector<Route> routes;  // Vector of routes
+    int N; // size of batch
 
 public:
     // Constructor
-    Batch(const std::vector<Net>& netVector, int i, int N);
+    Batch(const std::vector<Net>& netVector, int i, int n);
 
     // Function to perform pattern route
-    void pattern_route(Grid_Graph G, float T);
+    void pattern_route(Grid_Graph G, uint16_t* bestLx, vuint16_t* bestLy,uint16_t* Lx, vuint16_t* Ly,float T);
 
     // Function to perform maze route
     void maze_route(Grid_Graph G, float k);
+    // k is the ratio of bounding box size to net size
+    void batch::save_patterns(uint16_t* bestLx, vuint16_t* bestLy);
 };
 
