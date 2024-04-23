@@ -1,17 +1,26 @@
 #include "Netlist.h" // Include the header file to access the class definition
 #include "main.h"
 #include "Grid_Graph.h"
-
+#define costfile "pattern_costs.txt"
 // WE use vectors for all memory that will be on cpu only, and dynamically allocated arrays for memory that may be transferred to GPU and/or back
 
 // Constructor
-Netlist::Netlist(const std::vector<uint16_t>& v1, const std::vector<uint16_t>& v2, const std::vector<uint16_t>& v3, const std::vector<uint16_t>& v4, float v) {
+Netlist::Netlist(Grid_Graph G,const std::vector<uint16_t>& v1, const std::vector<uint16_t>& v2, const std::vector<uint16_t>& v3, const std::vector<uint16_t>& v4, float v) {
     // Create nets from input vectors
     // Assuming vectors are of equal length
     size_t N = v1.size();
     for (size_t i = 0; i < N; ++i) {
         Net net = {v1[i], v2[i], v3[i], v4[i], (int)((fabs(v3[i]-v1[i])+fabs(v4[i]-v2[i]))/(2*v))};
+
         Point point = {v1[i],v4[i]};
+
+        for (int y = v2+1; y< point.y+1; y++){
+            G.Gy[v1[i]*(M+1)+y] +=1;
+        }
+        for (int x = v1+1; x< v3+1; x++){
+            G.Gx[v4[i]*(N+1)+x] +=1;
+        }
+
         net.route[0] = point;
         // net.route only stores intermediate points in the path
         nets.push_back(net);
@@ -136,19 +145,18 @@ void Netlist::maze_schedule(float k) {
 }
 
 float Netlist::SA_patternroute(Grid_Graph G){
-    uint16_t* bestLx = (uint16_t*)malloc(nets.size()*sizeof(uint16_t));
-    uint16_t* Lx = (uint16_t*)malloc(nets.size()*sizeof(uint16_t));
-    uint16_t* bestLy = (uint16_t*)malloc(nets.size()*sizeof(uint16_t));
-    uint16_t* Ly = (uint16_t*)malloc(nets.size()*sizeof(uint16_t));
+    
+    Point* L = (Point*)malloc(nets.size()*sizeof(Point));
     // items that may be stored inside GPU, handle with pointers and arrays
     
     float T = 1000;
     int N = nets.size();
+    vector<float> costs(0,(int)(5/log10(1/0.995)));
 
     float tot_cost = std::numeric_limits<float>::max();
     float new_tot_cost = 0;
     for (int i=0; i<N;i++){
-        new_tot_cost += batches[i].pattern_route(G,bestLx, bestLy,Lx, Ly,T);
+        new_tot_cost += batches[i].pattern_route(G,bestL,L,T);
     }
     tot_cost = new_tot_cost;
     int k = 0;
@@ -156,22 +164,40 @@ float Netlist::SA_patternroute(Grid_Graph G){
     while (T>0.01){
         k=0;
         for (int i=0; i<N;i++){
-            new_tot_cost += batches[i].pattern_route(G,bestLx+k,bestLy+k,Lx+k, Ly+k,T);
+            new_tot_cost += batches[i].pattern_route(G,bestL,L,T);
             k+=batches[i].N;
         }
         tot_cost = new_tot_cost;
         new_tot_cost = 0;
         T = 0.995*T;
+        costs.push_back(tot_cost);
     }
     
     for (int i=0; i<N;i++){
-        batches[i].save_patterns(bestLx+k,bestLy+k);
+        batches[i].save_patterns(bestL+k);
         k+ = batches[i].N;
     }
-    free(bestLx);
-    free(bestLy);
-    free(Lx);
-    free(Ly);
+    free(L);
+
+    // Storing the costs to pattern_costs.txt
+    std::ofstream outputFile(costfile);
+
+    // Check if the file is opened successfully
+    if (!outputFile.is_open()) {
+        std::cerr << "Error: Unable to open file!" << std::endl;
+        return 1;
+    }
+
+    // Write the vector elements to the file
+    for (size_t i = 0; i < patternCosts.size(); ++i) {
+        outputFile << patternCosts[i]; // Write the float value
+        if (i != patternCosts.size() - 1) {
+            outputFile << " "; // Add space separator if not the last element
+        }
+    }
+
+    // Close the file
+    outputFile.close();
     return tot_cost;
 }
 

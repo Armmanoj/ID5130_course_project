@@ -13,7 +13,7 @@ public:
     Batch(const std::vector<Net>& netVector, int i, int n);
 
     // Function to perform pattern route
-    void pattern_route(Grid_Graph G, uint16_t* bestLx, vuint16_t* bestLy,uint16_t* Lx, vuint16_t* Ly,float T);
+    float pattern_route(Grid_Graph G, uint16_t* bestLx, vuint16_t* bestLy,uint16_t* Lx, vuint16_t* Ly,float T);
 
     // Function to perform maze route
     void maze_route(Grid_Graph G, float k);

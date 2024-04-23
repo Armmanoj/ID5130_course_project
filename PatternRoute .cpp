@@ -1,9 +1,9 @@
 #include <cmath>
 #include <random>
+#include "netlist.h"
 using namespace std;
 
-void pattern_route(int capacity,int k,int (*Gx)[], int (*Gy)[], int x,int y,int x1,int y1,char orientation, int cost, float T, uniform_real_distribution<float> dis,mt19937 gen){
-    // orientation is either 1 = 'u' or 0 = 'd'
+float pattern_route(Grid_Graph G,Point* bestL,Point* L, float T, uniform_real_distribution<float> dis,mt19937 gen){
     float p = dis(gen); // generate a new probability value, will have to change for gpu
     float c_max = cost_edge2(capacity, capacity,k);
     int cost_new;        

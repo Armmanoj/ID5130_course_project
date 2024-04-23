@@ -26,7 +26,7 @@ private:
 
 public:
     // Constructor
-    Netlist(const std::vector<int>& v1, const std::vector<int>& v2, const std::vector<int>& v3, const std::vector<int>& v4, float v);
+    Netlist(Grid_Graph G,const std::vector<int>& v1, const std::vector<int>& v2, const std::vector<int>& v3, const std::vector<int>& v4, float v);
 
     // Function to schedule patterns
     void pattern_schedule();

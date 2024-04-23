@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
     // create the return data structures, Gx, Gy are dynamically allocated with pointers due to large size, and as it will be passed to GPU
     Grid_Graph G(M,N,C,v);
 
-    Netlist Netlist(x1,y1,x2,y2, Grid_Graph.v);
+    Netlist Netlist(G,x1,y1,x2,y2, Grid_Graph.v);
     //Do the routing
     float cost;
     cost = Netlist.SA_patternroute(G); 
