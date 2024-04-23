@@ -75,6 +75,7 @@ float Batch::ripL(Grid_Graph G,Net net,int orientation){
             cost += 1;
         }
     }
+    return cost;
 }
 
 void Batch::routeL(Grid_Graph G,Net net,int orientation){
@@ -121,6 +122,7 @@ float Batch::survey(Grid_Graph G,Net net,int orientation){
             cost += 1;
         }
     }
+    return cost;
 }
 
 // Function to perform maze route
