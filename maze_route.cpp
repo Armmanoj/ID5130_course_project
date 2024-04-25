@@ -1,9 +1,10 @@
 #include "maze_route.h"
 #include "Grid_Graph.h"
+#include "netlist.h"
 
 const int MazeRouter::dx[] = {-1, 0, 1, 0};
 const int MazeRouter::dy[] = {0, 1, 0, -1};
-const string MazeRouter::directions[] = {"North", "East", "South", "West"};
+const char MazeRouter::directions[] = {"N", "E", "S", "W"};
 
 // Constructor initializes the router with a reference to a grid graph and its dimensions
 MazeRouter::MazeRouter(Grid_Graph& grid) : gridGraph(grid), M(grid.M), N(grid.N) {}

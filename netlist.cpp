@@ -172,7 +172,7 @@ float Netlist::SA_patternroute(Grid_Graph G){
         T = 0.995*T;
         costs.push_back(tot_cost);
     }
-    
+    // iniitializing the routes
     for (int i=0; i<N;i++){
         batches[i].save_patterns(bestL+k);
         k+ = batches[i].N;
@@ -201,14 +201,14 @@ float Netlist::SA_patternroute(Grid_Graph G){
     return tot_cost;
 }
 
-float Netlist::mazer(Grid_Graph G) {
+void Netlist::mazer(Grid_Graph G) {
     float k = 1.5;
     for (int i = 1000; i > 0; i--) {
         for (int j = 0; j < N; j++) {
             batches[j].maze_route(G, k, 2);
         }
     }
-    return 0.0
+    return 
 }
 
 """

@@ -1,5 +1,4 @@
-#ifndef MAZE_ROUTE_H
-#define MAZE_ROUTE_H
+
 
 #include <vector>
 #include <queue>
@@ -7,13 +6,6 @@
 #include <utility>
 
 using namespace std;
-
-class Grid_Graph;
-
-// Point struct to store coordinates of a point in the grid
-struct Point {
-    int x, y;
-};
 
 // Move struct to store each move's distance and direction in the routing path
 struct Move {
@@ -47,7 +39,6 @@ private:
     static const int dy[];
 
     // Array to store string representations of movement directions
-    static const string directions[];
+    static const char directions[];
 };
 
-#endif // MAZE_ROUTE_H

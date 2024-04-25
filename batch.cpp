@@ -127,8 +127,25 @@ float Batch::survey(Grid_Graph G,Net net,int orientation){
 
 // Function to perform maze route
 void Batch::maze_route(Grid_Graph G, float k, float c) {
+    // 2 pieces of memory are allocated, a big array storing the paths, an array of pointers to starting points
+    // accesss each path by difference of 2 pointers
+    Point** net_pointers = (Point**)malloc((N+1)*sizeof(Point*));
+    int tot_mem = 0;
+    uint16_t* path = (uint16_t*)malloc(N*sizeof(uint16_t));
+    for (int i=0; i<N; i++){
+        tot_mem += nets[i].Bends+2;
+    }
+    uint16_t* path = (uint16_t*)malloc((tot_mem+1)*sizeof(uint16_t));
+    net_pointers[0] = path;
+    for (int i=1; i<N+1; i++){
+        net_pointers[i] = net_pointers[i-1]+nets[i-1].Bends+2;
+    }
     // k represents bounding box size, c is a factor that determine hou severely overflow is penalized 
     // Implement maze route logic here
+    free(path*);
+    free(net_pointers);
+    return;
 }
+
 
 
