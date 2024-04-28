@@ -179,6 +179,9 @@ float Netlist::SA_patternroute(Grid_Graph G){
     }
     // iniitializing the routes
     for (int i=0; i<N;i++){
+        /*
+        Based on older code, need to correct this
+        */
         batches[i].save_patterns(bestL+k);
     }
     delete[] L;

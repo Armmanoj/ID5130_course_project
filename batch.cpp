@@ -3,6 +3,9 @@
 #include "main.h"
 
 // Constructor
+/*
+vector<route> is bsed on old way  of storing data, has to be fixed
+*/
 Batch(const std::vector<Net>& netVector, const std::vector<Route>& routeVector, int i, int n) : N(n) {
         // Store elements from netVector starting from index i up to index i+n into a vector named nets
         for (int j = i; j < i + n && j < netVector.size(); ++j) {
@@ -10,6 +13,9 @@ Batch(const std::vector<Net>& netVector, const std::vector<Route>& routeVector, 
         }
     }
 
+/*
+The below function is likely a small mess up, this has to be corrected to account for how data is stored in struct Net, it is called by Netlist.SA_patternroute();
+*/
 void batch::save_patterns(Point* bestL){
     for (int i=0; i<N; i++){
         Point temp = {bestL[i].x,bestLy[i].y};
@@ -19,6 +25,9 @@ void batch::save_patterns(Point* bestL){
 }
 
 // Function to perform pattern route
+/*
+L is basically storing the set of routes for pattern routing, is this needed? There may be some issue here
+*/
 float Batch::pattern_route(Grid_Graph G,Point* L, float T) {
     tot_cost = 0;
     float cost;
@@ -140,6 +149,9 @@ void Batch::maze_route(Grid_Graph G, float k, float c,float*  Sdist1,char*  Sdir
     // accesss each path by difference of 2 pointers
     // net_pointers only initializes the memory, is not used later
     // path is the array of pointers to net_pointers
+    /*
+    Look more carefully at if the below double allocation is really necessary
+    */
     Point** net_pointers = (Point**)malloc((N+1)*sizeof(Point*));
     int tot_mem = 0;
     for (int i=0; i<N; i++){
@@ -156,8 +168,10 @@ void Batch::maze_route(Grid_Graph G, float k, float c,float*  Sdist1,char*  Sdir
         p = Point {nets[i-1].x2,nets[i-1].y2};
         net_pointers[i-1] + nets[i-1].Bends+1 = p;
     }
+
+    // rip up the full batch
     for (int i=0; i<N; i++){
-        rip_wire(G, path, nets[i].Bends,i);
+        rip_wire(G, net_pointers[i], nets[i].Bends,i);
     }
 
    // Next all variables necessary for maze routing are made
@@ -265,8 +279,8 @@ void Batch::maze_route(Grid_Graph G, float k, float c,float*  Sdist1,char*  Sdir
                 }
             }
         }
-        // Then do SSP
 
+        // Then do Bellman-Ford
         bool flag = 1; // to keep track of if the relaxation step has caused any change to the distances and routes or not
         while (flag){
             // Relaxing Sdir1 (rows)
@@ -328,6 +342,9 @@ void Batch::maze_route(Grid_Graph G, float k, float c,float*  Sdist1,char*  Sdir
     return;
 }
 
+/*
+we need to rip multiple bends
+*/
 void Batch::rip_wire(Grid_Graph G, Point* path, int Bends,int i)
 {
     if (path[i].x = path[i+1].x) {
@@ -335,16 +352,11 @@ void Batch::rip_wire(Grid_Graph G, Point* path, int Bends,int i)
         for (uint16_t y = path[i].y + 1; y < path[i+1].y; ++y) {
             G.Gy[net.x1*(G.M+1)+y] -= 1;
         }
-        for (uint16_t x = path[i].x + 1; x <= path[i+1].x; ++x) {
-            G.Gx[net.y2*(G.N+1)+x] -= 1;
-        }
-    } else {
+    } 
+    else {
         // Traverse the path with orientation 1 (turn at x2, y1)
         for (uint16_t x = path[i].x + 1; x < path[i+1].x; ++x) {
             G.Gx[net.y1*(G.N+1)+x] -= 1;
-        }
-        for (uint16_t y = path[i].y; y <= path[i+1].y; ++y) {
-            G.Gy[net.x2*(G.M+1)+y] -= 1;
         }
     }
     return;
