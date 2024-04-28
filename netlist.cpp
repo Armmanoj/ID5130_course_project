@@ -10,7 +10,6 @@ Netlist::Netlist(Grid_Graph G,const std::vector<uint16_t>& v1, const std::vector
     // Assuming vectors are of equal length
     size_t N = v1.size();
     for (size_t i = 0; i < N; ++i) {
-        Net net = {v1[i], v2[i], v3[i], v4[i], (int)((fabs(v3[i]-v1[i])+fabs(v4[i]-v2[i]))/(2*v))};
 
         Point point = {v1[i],v4[i]};
 
@@ -20,8 +19,14 @@ Netlist::Netlist(Grid_Graph G,const std::vector<uint16_t>& v1, const std::vector
         for (int x = v1+1; x< v3+1; x++){
             G.Gx[v4[i]*(N+1)+x] +=1;
         }
-
-        net.route[0] = point;
+        Net net;
+        net.x1 = v1[i];
+        net.y1 v2[i];
+        net.x2 = v3[i];
+        net.y2 = v4[i];
+        net.Bends = 1; 
+        net.route = 
+        net.route[0] = new Point[nets.size()]; 
         // net.route only stores intermediate points in the path
         nets.push_back(net);
     } 
@@ -60,7 +65,6 @@ void Netlist::pattern_schedule() {
         }
     }
 
-    // maybe redo the chatgot writing
     std::vector<int> sorted_indices(clique.size());
     std::iota(sorted_indices.begin(), sorted_indices.end(), 0); // Fill with 0, 1, 2, ..., n-1
     std::sort(sorted_indices.begin(), sorted_indices.end(), [&](int a, int b) {
@@ -99,7 +103,8 @@ void Netlist::maze_schedule(float k) {
 
     // Greedy algorithm for minimal clique cover
     std::vector<int> clique(N); // Initialize clique vector with size N
-    std::vector<int> batch_count;
+    std::vector<int> batch_count(N);
+    batch_count.clear();
     int id = 1;
     int count = 0;
     for (int i = 0; i < N; ++i) {
@@ -133,10 +138,10 @@ void Netlist::maze_schedule(float k) {
     // Update original vector with sorted one
     nets = std::move(sorted_nets);
 
-    // Update the batches, by creating them again
+    // Update the batches, by clearing them
     int loc = 0;
-    delete batches;
-    batches(batch_count.size());
+    batches.clear();
+    batches.resize(batch_count.size());
     for (int i = 0; i < batch_count.size(); i++) {
         Batch batch(nets, loc, batch_count[i]);
         batches.push_back(batch);
@@ -146,7 +151,7 @@ void Netlist::maze_schedule(float k) {
 
 float Netlist::SA_patternroute(Grid_Graph G){
     
-    Point* L = (Point*)malloc(nets.size()*sizeof(Point));
+    Point* L = new Point[nets.size()]; 
     // items that may be stored inside GPU, handle with pointers and arrays
     
     float T = 1000;
@@ -175,9 +180,8 @@ float Netlist::SA_patternroute(Grid_Graph G){
     // iniitializing the routes
     for (int i=0; i<N;i++){
         batches[i].save_patterns(bestL+k);
-        k+ = batches[i].N;
     }
-    free(L);
+    delete[] L;
 
     // Storing the costs to pattern_costs.txt
     std::ofstream outputFile(costfile);
@@ -185,7 +189,7 @@ float Netlist::SA_patternroute(Grid_Graph G){
     // Check if the file is opened successfully
     if (!outputFile.is_open()) {
         std::cerr << "Error: Unable to open file!" << std::endl;
-        return 1;
+        return -1.0;
     }
 
     // Write the vector elements to the file
@@ -202,12 +206,20 @@ float Netlist::SA_patternroute(Grid_Graph G){
 }
 
 void Netlist::mazer(Grid_Graph G) {
+    float*  Sdist1 = (float*)malloc(G.M*G.N*2*sizeof(float)); 
+    char*  Sdir1 = (char*)malloc(G.M*G.N*2*sizeof(char));
+    float*  Sdist2 = (float*)malloc(G.M*G.N*2*sizeof(float)); 
+    char*  Sdir2 = (char*)malloc(G.M*G.N*2*sizeof(char));
     float k = 1.5;
     for (int i = 1000; i > 0; i--) {
         for (int j = 0; j < N; j++) {
-            batches[j].maze_route(G, k, 2);
+            batches[j].maze_route(G, k, 2, Sdist1,Sdir1,Sdist2,Sdir2);
         }
     }
+    free(Sdist1);
+    free(Sdir1);
+    free(Sdist2);
+    free(Sdir2);
     return 
 }
 
@@ -215,7 +227,7 @@ void Netlist::mazer(Grid_Graph G) {
 Gen-AI prompt-
 A Net is a struct consisting of 4 integers, x1,y1,x2,y2 where (x1,y1)  and (x2,y2) represents points in a 2d grid, now define the bounding box
 of a net as the set of all grid points whose x coordinate is inside an interval of width k*abs(x1-x2) centered at (x1+x2)/2 and whose y coordinates 
-is within an interval of k*abs(y1-y2) centered at (y1+y2)/2. Write a cpp function whose arguments are 2 Net objcts, and a foat k, and which returns 
+is within an interval of k*abs(y1-y2) centered at (y1+y2)/2. Write a cpp function whose arguments are 2 Net objcts, and a float k, and which returns 
 a bool true if the bounding boxes of the 2 nets dont overlap, and false if they do.
 """
 inline bool Netlist::overlap(const Net& net1, const Net& net2, float k) {
@@ -265,3 +277,6 @@ inline bool checkRectangleIntersection(const Net& net1, const Net& net2) {
 
     return xOverlap && yOverlap && !fullyInside;
 }
+
+// Destructor to release memory allocated for the route
+

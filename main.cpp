@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
     cost = Netlist.mazer(G) ;
     cout << "Final cost is " << cost << std::endl; 
     // Store the result
-    StoreToFile(fileout, G, Netlist);
+    StoreToFile(fileout, G, Netlist.nets);
     return 0;
 }
 
