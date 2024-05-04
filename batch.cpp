@@ -7,7 +7,7 @@
 vector<route> is bsed on old way  of storing data, has to be fixed
 */
 
-Batch(const std::vector<Net>& netVector, int i, int n) : N(n) {
+Batch::Batch(std::vector<Net> netVector, int i, int n) : N(n) {
     // Store elements from netVector starting from index i up to index i+n into a vector named nets
     for (int j = i; j < i + n && j < netVector.size(); ++j) {
         nets.push_back(netVector[j]);
@@ -63,14 +63,15 @@ float Batch::pattern_route(Grid_Graph G,std::vector<Point>& L, int k,float T, fl
 }
 
 
-"""
+/*
 Gen-AI prompt-
 User
 A net is a struct of 4 uint16_t , x1,y1,x2,y2, where (x1,y1) form a point on a grid, and (x2,y2) forms another. An L shaped connection is the set of points 
 that lie on an L shaped path that goes from the first point in net to the second, excluding the start and end points. Int Orientation = 0  for an L shaped path
  that takes a turn at (x1,y2), and Orientation = 1 if it turns at (x2,y1). write a code that traverses first the path with a given orientation, then the path 
  with the other orientation, and then updates the orientation according to some function, and then traverses according to that orientation 
-"""
+*/
+
 float Batch::ripL(Grid_Graph G,Net net,int orientation){
     float cost = 0;
     if (orientation == 0) {
@@ -144,7 +145,7 @@ float Batch::survey(Grid_Graph G,Net net,int orientation){
     return cost;
 }
 // Function to perform maze route
-void Batch::maze_route(Grid_Graph G, float k, float c,std::vector<float>& Sdist1,std::vector<char>&  Sdir1,std::vector<float>& Sdis2,std::vector<char>&  Sdir2) {
+void Batch::maze_route(Grid_Graph G, float k, float c,std::vector<float>& Sdist1,std::vector<char>&  Sdir1,std::vector<float>& Sdist2,std::vector<char>&  Sdir2) {
     // 2 pieces of memory are allocated, a big array storing the paths, an array of pointers to starting points
     // access each path by difference of 2 pointers
     // net_pointers only initializes the memory, is not used later
@@ -240,7 +241,7 @@ void Batch::maze_route(Grid_Graph G, float k, float c,std::vector<float>& Sdist1
         // Initializing Sdist1 
         for (int k = cornerl.y; k<cornerh.y; k++){
             int j = source.x;
-            Sdist1[G.N*j+k] = v + Sdist2[G.N*k+j];
+            Sdist1[G.N*j+k] = G.v + Sdist2[G.N*k+j];
             float sum_cost = Sdist1[G.N*j+k];
             for (j = source.x+1; j<cornerh.x; j++){
                 sum_cost += weight(G.Gx[(G.N+1)*k+j],G.C,c); 
@@ -258,7 +259,7 @@ void Batch::maze_route(Grid_Graph G, float k, float c,std::vector<float>& Sdist1
         for (int j = cornerl.x; j<cornerh.x; j++){
             for (int k = cornerl.y; k<cornerh.y; k++){
                 if (j != source.x){
-                    Sdist2[G.M*j+k] = v+Sdist1[G.N*j+k];
+                    Sdist2[G.M*j+k] = G.v+Sdist1[G.N*j+k];
                 }
             }
         }
@@ -271,16 +272,16 @@ void Batch::maze_route(Grid_Graph G, float k, float c,std::vector<float>& Sdist1
             for (int k = cornerl.y; k<cornerh.y; k++){
                 // left to right
                 for (int j = cornerl.x+1; j<cornerh.x; j++){
-                    if (Sdist1[G.N*k+j] > Sdist1[G.N*k+j-1]+weight(G.Gx[(G.N+1)*k+j])){
-                        Sdist1[G.N*k+j] > Sdist1[G.N*k+j-1]+weight(G.Gx[(G.N+1)*k+j]);
+                    if (Sdist1[G.N*k+j] > Sdist1[G.N*k+j-1]+weight(G.Gx[(G.N+1)*k+j],G.C,c)){
+                        Sdist1[G.N*k+j] > Sdist1[G.N*k+j-1]+weight(G.Gx[(G.N+1)*k+j],G.C,c);
                         Sdir1[G.N*k+j] = 'l';
                         flag = 1;
                     }
                 }
                 // right to left
                 for (int j = cornerh.x-1; j>cornerl.x; j--){
-                    if (Sdist1[G.N*k+j] > Sdist1[G.N*k+j+1]+weight(G.Gx[(G.N+1)*k+j+1])){
-                        Sdist1[G.N*k+j] > Sdist1[G.N*k+j+1]+weight(G.Gx[(G.N+1)*k+j+1]);
+                    if (Sdist1[G.N*k+j] > Sdist1[G.N*k+j+1]+weight(G.Gx[(G.N+1)*k+j+1],G.C,c)){
+                        Sdist1[G.N*k+j] > Sdist1[G.N*k+j+1]+weight(G.Gx[(G.N+1)*k+j+1],G.C,c);
                         Sdir1[G.N*k+j] = 'r';
                         flag = 1;
                     }
@@ -290,16 +291,16 @@ void Batch::maze_route(Grid_Graph G, float k, float c,std::vector<float>& Sdist1
             for (int j = cornerl.x; j<cornerh.x; j++){
                 // south to  north
                 for (int k = cornerl.y+1; k<cornerh.y; k++){
-                    if (Sdist2[G.M*j+k] > Sdist2[G.M*j+k-1]+weight(G.Gy[(G.M+1)*j+k])){
-                        Sdist2[G.M*j+k] > Sdist2[G.M*j+k-1]+weight(G.Gy[(G.M+1)*j+k]);
+                    if (Sdist2[G.M*j+k] > Sdist2[G.M*j+k-1]+weight(G.Gy[(G.M+1)*j+k],G.C,c)){
+                        Sdist2[G.M*j+k] > Sdist2[G.M*j+k-1]+weight(G.Gy[(G.M+1)*j+k],G.C,c);
                         Sdir2[G.M*j+k] = 's';
                         flag = 1;
                     }
                 }
                 // right to left
                 for (int k = cornerh.y-1; k>cornerl.y; k--){
-                    if (Sdist2[G.M*j+k] > Sdist2[G.M*j+k+1]+weight(G.Gy[(G.M+1)*j+k+1])){
-                        Sdist2[G.M*j+k] > Sdist2[G.M*j+k+1]+weight(G.Gy[(G.M+1)*j+k+1]);
+                    if (Sdist2[G.M*j+k] > Sdist2[G.M*j+k+1]+weight(G.Gy[(G.M+1)*j+k+1],G.C,c)){
+                        Sdist2[G.M*j+k] > Sdist2[G.M*j+k+1]+weight(G.Gy[(G.M+1)*j+k+1],G.C,c);
                         Sdir2[G.M*j+k] = 'n';
                         flag = 1;
                     }
@@ -307,14 +308,14 @@ void Batch::maze_route(Grid_Graph G, float k, float c,std::vector<float>& Sdist1
             }
             // via sweep
             for (int k = cornerl.y; k<cornerh.y; k++){
-                (int j = cornerl.x; j<cornerh.x; j++){
-                    if (Sdist1[G.N*k+j] > Sdist2[G.N*j+k]+v){
-                        Sdist1[G.N*k+j] = Sdist2[G.N*j+k]+v;
+                for (int j = cornerl.x; j<cornerh.x; j++){
+                    if (Sdist1[G.N*k+j] > Sdist2[G.N*j+k]+G.v){
+                        Sdist1[G.N*k+j] = Sdist2[G.N*j+k]+G.v;
                         Sdir1[G.N*k+j] =  'u';
                         flag = 1;
                     }
-                    if (Sdist1[G.N*k+j] + v < Sdist2[G.N*j+k]){
-                        Sdist2[G.N*j+k] = Sdist1[G.N*k+j]+v;
+                    if (Sdist1[G.N*k+j] + G.v < Sdist2[G.N*j+k]){
+                        Sdist2[G.N*j+k] = Sdist1[G.N*k+j]+G.v;
                         Sdist2[G.N*j+k] =  'd';
                         flag = 1;
                     }
@@ -328,7 +329,7 @@ void Batch::maze_route(Grid_Graph G, float k, float c,std::vector<float>& Sdist1
         int b = 0;
         char dir = 'x';
         char diro = 'y';
-        while ((here.X != source.X) && (here.y != source.y)){
+        while ((here.x != source.x) && (here.y != source.y)){
             if (layer==0){
                 dir = Sdir1[G.N*here.y+here.x];
             }
@@ -336,7 +337,7 @@ void Batch::maze_route(Grid_Graph G, float k, float c,std::vector<float>& Sdist1
                 dir = Sdir2[G.M*here.x+here.y];
             }
             if (dir != diro){
-                if (b<nets[i].size()){
+                if (b<nets[i].route.size()){
                     nets[i].route[b] = here;
                 }
                 else{
@@ -396,7 +397,7 @@ void Batch::rip_wire(Grid_Graph G, Point Src, Point Dest, std::vector<Point>& pa
             G.Gx[Src.y*(G.N+1)+x] -= 1;
         }
     }
-    for (i=1; i<path.size()-1;i+++)
+    for (i=1; i<path.size()-1;i++)
     {
         if (path[i].x = path[i+1].x) {
             // Traverse the path with orientation 0 (turn at x1, y2)

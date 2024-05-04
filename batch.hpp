@@ -6,16 +6,16 @@ class Grid_Graph;
 // Class representing a batch
 class Batch {
 public:
-    std::vector<Net>& nets;  // Vector of nets
+    std::vector<Net> nets;  // Vector of nets
     int N; // size of batch
     // Constructor
-    Batch(const std::vector<Net>& netVector, int i, int n);
+    Batch(const std::vector<Net> netVector, int i, int n);
 
     // Function to perform pattern route
     float pattern_route(Grid_Graph G,std::vector<Point>& L, int k,float T, float p);
 
     // Function to perform maze route
-    void maze_route(Grid_Graph G, float k, float c,std::vector<float>& Sdist1,std::vector<char>&  Sdir1,std::vector<float>& Sdis2,std::vector<char>&  Sdir2);
+    void maze_route(Grid_Graph G, float k, float c,std::vector<float>& Sdist1,std::vector<char>&  Sdir1,std::vector<float>& Sdist2,std::vector<char>&  Sdir2);
     // k is the ratio of bounding box size to net size
     void save_patterns(std::vector<Point>& L, int k);
     void rip_wire(Grid_Graph G, Point Src, Point Dest, std::vector<Point>& path, int Bends);
