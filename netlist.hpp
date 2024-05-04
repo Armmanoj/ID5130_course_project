@@ -26,4 +26,5 @@ public:
 
     inline bool overlap(const Net& net1, const Net& net2, float k);
     inline bool checkRectangleIntersection(const Net& net1, const Net& net2); 
+    
 };

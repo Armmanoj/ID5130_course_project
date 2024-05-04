@@ -13,6 +13,7 @@ Batch::Batch(std::vector<Net> netVector, int i, int n) : N(n) {
         nets.push_back(netVector[j]);
     }
 }
+Batch::Batch() : N(0) {} // Initializes N to 0
 
 /*
 The below function is likely a small mess up, this has to be corrected to account for how data is stored in struct Net, it is called by Netlist.SA_patternroute();
@@ -385,7 +386,7 @@ we need to rip multiple bends
 void Batch::rip_wire(Grid_Graph G, Point Src, Point Dest, std::vector<Point>& path, int Bends)
 {
     int i = 0;
-    if (Src.x = path[i].x) {
+    if (Src.x == path[i].x) {
         // Traverse the path with orientation 0 (turn at x1, y2)
         for (int y = Src.y + 1; y < path[i].y; ++y) {
             G.Gy[Src.x*(G.M+1)+y] -= 1;
@@ -399,7 +400,7 @@ void Batch::rip_wire(Grid_Graph G, Point Src, Point Dest, std::vector<Point>& pa
     }
     for (i=1; i<path.size()-1;i++)
     {
-        if (path[i].x = path[i+1].x) {
+        if (path[i].x == path[i+1].x) {
             // Traverse the path with orientation 0 (turn at x1, y2)
             for (int y = path[i].y + 1; y < path[i+1].y; ++y) {
                 G.Gy[path[i].x*(G.M+1)+y] -= 1;
@@ -413,7 +414,7 @@ void Batch::rip_wire(Grid_Graph G, Point Src, Point Dest, std::vector<Point>& pa
         }
     }
     i = path.size()-1;
-    if (path[i].x = Dest.x) {
+    if (path[i].x == Dest.x) {
         // Traverse the path with orientation 0 (turn at x1, y2)
         for (int y = path[i].y + 1; y < Dest.y; ++y) {
             G.Gy[path[i].x*(G.M+1)+y] -= 1;
