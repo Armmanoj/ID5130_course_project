@@ -1,10 +1,11 @@
-#include "main.h"
-#include "Grid_Graph.h"
+#include "main.hpp"
+#include "Grid_Graph.hpp"
+#include "struct.hpp"
 
 // Constructor
-Grid_Graph::Grid_Graph(uint16_t M_val, uint16_t N_val, int C_val, float v_val) : M(M_val), N(N_val), C(C_val), v(v_val) {
-    Gx = (uint8_t*)calloc((N + 1) * M, sizeof(uint8_t));
-    Gy = (uint8_t*)calloc((M + 1) * N, sizeof(uint8_t));
+Grid_Graph::Grid_Graph(int M_val, int N_val, int C_val, float v_val) : M(M_val), N(N_val), C(C_val), v(v_val) {
+    Gx = (int*)calloc((N + 1) * M, sizeof(int));
+    Gy = (int*)calloc((M + 1) * N, sizeof(int));
 }
 
 // Destructor to free memory automatically

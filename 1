@@ -1,0 +1,258 @@
+netlist.cpp:231:3: warning: missing terminating " character
+  231 | """
+      |   ^
+netlist.cpp:231:3: error: missing terminating " character
+netlist.cpp:237:3: warning: missing terminating " character
+  237 | """
+      |   ^
+netlist.cpp:237:3: error: missing terminating " character
+netlist.cpp:266:3: warning: missing terminating " character
+  266 | """
+      |   ^
+netlist.cpp:266:3: error: missing terminating " character
+netlist.cpp:273:3: warning: missing terminating " character
+  273 | """
+      |   ^
+netlist.cpp:273:3: error: missing terminating " character
+In file included from batch.hpp:1,
+                 from netlist.hpp:4,
+                 from netlist.cpp:1:
+Grid_Graph.hpp:2:7: error: redefinition of ‘class Grid_Graph’
+    2 | class Grid_Graph {
+      |       ^~~~~~~~~~
+In file included from netlist.hpp:3,
+                 from netlist.cpp:1:
+Grid_Graph.hpp:2:7: note: previous definition of ‘class Grid_Graph’
+    2 | class Grid_Graph {
+      |       ^~~~~~~~~~
+In file included from batch.hpp:2,
+                 from netlist.hpp:4,
+                 from netlist.cpp:1:
+main.hpp:15:8: error: redefinition of ‘struct Point’
+   15 | struct Point{
+      |        ^~~~~
+In file included from netlist.hpp:2,
+                 from netlist.cpp:1:
+main.hpp:15:8: note: previous definition of ‘struct Point’
+   15 | struct Point{
+      |        ^~~~~
+In file included from batch.hpp:2,
+                 from netlist.hpp:4,
+                 from netlist.cpp:1:
+main.hpp:23:8: error: redefinition of ‘struct Net’
+   23 | struct Net {
+      |        ^~~
+In file included from netlist.hpp:2,
+                 from netlist.cpp:1:
+main.hpp:23:8: note: previous definition of ‘struct Net’
+   23 | struct Net {
+      |        ^~~
+In file included from netlist.hpp:4,
+                 from netlist.cpp:1:
+batch.hpp:13:38: error: ‘vector’ has not been declared
+   13 |     float pattern_route(Grid_Graph G,vector<Point> L, int k,float T, float p);
+      |                                      ^~~~~~
+batch.hpp:13:44: error: expected ‘,’ or ‘...’ before ‘<’ token
+   13 |     float pattern_route(Grid_Graph G,vector<Point> L, int k,float T, float p);
+      |                                            ^
+batch.hpp:16:52: error: ‘vector’ has not been declared
+   16 |     void maze_route(Grid_Graph G, float k, float c,vector<float> Sdist1,vector<char>  Sdir1,vector<float> Sdis2,vector<char>  Sdir2);
+      |                                                    ^~~~~~
+batch.hpp:16:58: error: expected ‘,’ or ‘...’ before ‘<’ token
+   16 |     void maze_route(Grid_Graph G, float k, float c,vector<float> Sdist1,vector<char>  Sdir1,vector<float> Sdis2,vector<char>  Sdir2);
+      |                                                          ^
+In file included from netlist.hpp:4,
+                 from netlist.cpp:1:
+batch.hpp:18:42: error: ‘vuint16_t’ has not been declared
+   18 |     void save_patterns(uint16_t* bestLx, vuint16_t* bestLy);
+      |                                          ^~~~~~~~~
+batch.hpp:19:56: error: ‘vector’ has not been declared
+   19 |     void rip_wire(Grid_Graph G, Point Src, Point Dest, vector<Point> path, int Bends);
+      |                                                        ^~~~~~
+batch.hpp:19:62: error: expected ‘,’ or ‘...’ before ‘<’ token
+   19 |     void rip_wire(Grid_Graph G, Point Src, Point Dest, vector<Point> path, int Bends);
+      |                                                              ^
+In file included from netlist.cpp:1:
+netlist.hpp:25:76: error: expected ‘;’ at end of member declaration
+   25 |     inline bool checkRectangleIntersection(const Net& net1, const Net& net2)
+      |                                                                            ^
+      |                                                                             ;
+In file included from netlist.cpp:2:
+main.hpp:15:8: error: redefinition of ‘struct Point’
+   15 | struct Point{
+      |        ^~~~~
+In file included from netlist.hpp:2,
+                 from netlist.cpp:1:
+main.hpp:15:8: note: previous definition of ‘struct Point’
+   15 | struct Point{
+      |        ^~~~~
+In file included from netlist.cpp:2:
+main.hpp:23:8: error: redefinition of ‘struct Net’
+   23 | struct Net {
+      |        ^~~
+In file included from netlist.hpp:2,
+                 from netlist.cpp:1:
+main.hpp:23:8: note: previous definition of ‘struct Net’
+   23 | struct Net {
+      |        ^~~
+In file included from netlist.cpp:3:
+Grid_Graph.hpp:2:7: error: redefinition of ‘class Grid_Graph’
+    2 | class Grid_Graph {
+      |       ^~~~~~~~~~
+In file included from netlist.hpp:3,
+                 from netlist.cpp:1:
+Grid_Graph.hpp:2:7: note: previous definition of ‘class Grid_Graph’
+    2 | class Grid_Graph {
+      |       ^~~~~~~~~~
+In file included from batch.hpp:1,
+                 from netlist.cpp:4:
+Grid_Graph.hpp:2:7: error: redefinition of ‘class Grid_Graph’
+    2 | class Grid_Graph {
+      |       ^~~~~~~~~~
+In file included from netlist.hpp:3,
+                 from netlist.cpp:1:
+Grid_Graph.hpp:2:7: note: previous definition of ‘class Grid_Graph’
+    2 | class Grid_Graph {
+      |       ^~~~~~~~~~
+In file included from batch.hpp:2,
+                 from netlist.cpp:4:
+main.hpp:15:8: error: redefinition of ‘struct Point’
+   15 | struct Point{
+      |        ^~~~~
+In file included from netlist.hpp:2,
+                 from netlist.cpp:1:
+main.hpp:15:8: note: previous definition of ‘struct Point’
+   15 | struct Point{
+      |        ^~~~~
+In file included from batch.hpp:2,
+                 from netlist.cpp:4:
+main.hpp:23:8: error: redefinition of ‘struct Net’
+   23 | struct Net {
+      |        ^~~
+In file included from netlist.hpp:2,
+                 from netlist.cpp:1:
+main.hpp:23:8: note: previous definition of ‘struct Net’
+   23 | struct Net {
+      |        ^~~
+In file included from netlist.cpp:4:
+batch.hpp:5:7: error: redefinition of ‘class Batch’
+    5 | class Batch {
+      |       ^~~~~
+In file included from netlist.hpp:4,
+                 from netlist.cpp:1:
+batch.hpp:5:7: note: previous definition of ‘class Batch’
+    5 | class Batch {
+      |       ^~~~~
+netlist.cpp:9:1: error: no declaration matches ‘Netlist::Netlist(Grid_Graph, const std::vector<short unsigned int>&, const std::vector<short unsigned int>&, const std::vector<short unsigned int>&, const std::vector<short unsigned int>&, float)’
+    9 | Netlist::Netlist(Grid_Graph G,const std::vector<uint16_t>& v1, const std::vector<uint16_t>& v2, const std::vector<uint16_t>& v3, const std::vector<uint16_t>& v4, float v) {
+      | ^~~~~~~
+In file included from netlist.cpp:1:
+netlist.hpp:6:7: note: candidates are: ‘constexpr Netlist::Netlist(Netlist&&)’
+    6 | class Netlist {
+      |       ^~~~~~~
+netlist.hpp:6:7: note:                 ‘constexpr Netlist::Netlist(const Netlist&)’
+netlist.hpp:10:5: note:                 ‘Netlist::Netlist(Grid_Graph, const std::vector<int>&, const std::vector<int>&, const std::vector<int>&, const std::vector<int>&, float)’
+   10 |     Netlist(Grid_Graph G,const std::vector<int>& v1, const std::vector<int>& v2, const std::vector<int>& v3, const std::vector<int>& v4, float v);
+      |     ^~~~~~~
+netlist.hpp:6:7: note: ‘class Netlist’ defined here
+    6 | class Netlist {
+      |       ^~~~~~~
+netlist.cpp: In member function ‘void Netlist::pattern_schedule()’:
+netlist.cpp:41:13: error: ‘nets’ was not declared in this scope
+   41 |     int N = nets.size();
+      |             ^~~~
+netlist.cpp:91:9: error: ‘batches’ was not declared in this scope; did you mean ‘batch’?
+   91 |         batches.push_back(batch);
+      |         ^~~~~~~
+      |         batch
+netlist.cpp: In member function ‘void Netlist::maze_schedule(float)’:
+netlist.cpp:99:13: error: ‘nets’ was not declared in this scope
+   99 |     int N = nets.size();
+      |             ^~~~
+netlist.cpp:145:5: error: ‘batches’ was not declared in this scope; did you mean ‘Batch’?
+  145 |     batches.clear();
+      |     ^~~~~~~
+      |     Batch
+netlist.cpp: In member function ‘float Netlist::SA_patternroute(Grid_Graph)’:
+netlist.cpp:156:13: error: ‘nets’ was not declared in this scope
+  156 |     int N = nets.size();
+      |             ^~~~
+netlist.cpp:162:5: error: ‘vector’ was not declared in this scope
+  162 |     vector<Point> L(N);
+      |     ^~~~~~
+netlist.cpp:162:5: note: suggested alternatives:
+In file included from /usr/include/c++/11/vector:67,
+                 from /usr/include/c++/11/functional:62,
+                 from /usr/include/c++/11/pstl/glue_algorithm_defs.h:13,
+                 from /usr/include/c++/11/algorithm:74,
+                 from main.hpp:2,
+                 from netlist.hpp:2,
+                 from netlist.cpp:1:
+/usr/include/c++/11/bits/stl_vector.h:389:11: note:   ‘std::vector’
+  389 |     class vector : protected _Vector_base<_Tp, _Alloc>
+      |           ^~~~~~
+In file included from /usr/include/c++/11/functional:62,
+                 from /usr/include/c++/11/pstl/glue_algorithm_defs.h:13,
+                 from /usr/include/c++/11/algorithm:74,
+                 from main.hpp:2,
+                 from netlist.hpp:2,
+                 from netlist.cpp:1:
+/usr/include/c++/11/vector:86:13: note:   ‘std::pmr::vector’
+   86 |       using vector = std::vector<_Tp, polymorphic_allocator<_Tp>>;
+      |             ^~~~~~
+netlist.cpp:162:17: error: expected primary-expression before ‘>’ token
+  162 |     vector<Point> L(N);
+      |                 ^
+netlist.cpp:162:19: error: ‘L’ was not declared in this scope
+  162 |     vector<Point> L(N);
+      |                   ^
+netlist.cpp:164:12: error: expected primary-expression before ‘float’
+  164 |     vector<float> costs(0,(int)(5/log10(1/0.995+1)+1));
+      |            ^~~~~
+netlist.cpp:169:25: error: ‘batches’ was not declared in this scope; did you mean ‘Batch’?
+  169 |         new_tot_cost += batches[i].pattern_route(G,L,0,T,1);
+      |                         ^~~~~~~
+      |                         Batch
+netlist.cpp:176:29: error: ‘batches’ was not declared in this scope; did you mean ‘Batch’?
+  176 |             new_tot_cost += batches[i].pattern_route(G,L,0,T,dist(gen));
+      |                             ^~~~~~~
+      |                             Batch
+netlist.cpp:182:9: error: ‘costs’ was not declared in this scope
+  182 |         costs.push_back(tot_cost);
+      |         ^~~~~
+netlist.cpp:185:8: error: expected ‘;’ before ‘for’
+  185 |     k=0
+      |        ^
+      |        ;
+  186 |     for (int i=0; i<N;i++){
+      |     ~~~ 
+netlist.cpp:186:19: error: ‘i’ was not declared in this scope
+  186 |     for (int i=0; i<N;i++){
+      |                   ^
+netlist.cpp:201:28: error: ‘patternCosts’ was not declared in this scope
+  201 |     for (size_t i = 0; i < patternCosts.size(); ++i) {
+      |                            ^~~~~~~~~~~~
+netlist.cpp: At global scope:
+netlist.cpp:213:6: error: no declaration matches ‘void Netlist::mazer(Grid_Graph)’
+  213 | void Netlist::mazer(Grid_Graph G) {
+      |      ^~~~~~~
+In file included from netlist.cpp:1:
+netlist.hpp:22:11: note: candidate is: ‘float Netlist::mazer(Grid_Graph)’
+   22 |     float mazer(Grid_Graph G);
+      |           ^~~~~
+In file included from netlist.cpp:1:
+netlist.hpp:6:7: note: ‘class Netlist’ defined here
+    6 | class Netlist {
+      |       ^~~~~~~
+netlist.cpp:231:1: error: expected unqualified-id before string constant
+  231 | """
+      | ^~
+netlist.cpp:266:1: error: expected unqualified-id before string constant
+  266 | """
+      | ^~
+netlist.cpp:285:1: error: expected unqualified-id before ‘,’ token
+  285 | , 8
+      | ^
+netlist.cpp:285:3: error: expected unqualified-id before numeric constant
+  285 | , 8
+      |   ^

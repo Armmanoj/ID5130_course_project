@@ -1,39 +1,35 @@
-#include "Netlist.h" // Include the header file to access the class definition
-#include "main.h"
-#include "Grid_Graph.h"
+#include "netlist.hpp" // Include the header file to access the class definition
+#include "Grid_Graph.hpp"
+#include "batch.hpp"
+#include "struct.hpp"
+
 #define costfile "pattern_costs.txt"
 // WE use vectors for all memory that will be on cpu only, and dynamically allocated arrays for memory that may be transferred to GPU and/or back
 
 // Constructor
-Netlist::Netlist(Grid_Graph G,const std::vector<uint16_t>& v1, const std::vector<uint16_t>& v2, const std::vector<uint16_t>& v3, const std::vector<uint16_t>& v4, float v) {
+Netlist::Netlist(Grid_Graph G,const std::vector<int>& v1, const std::vector<int>& v2, const std::vector<int>& v3, const std::vector<int>& v4, float v) {
     // Create nets from input vectors
     // Assuming vectors are of equal length
-    size_t N = v1.size();
-    for (size_t i = 0; i < N; ++i) {
+    int N = v1.size();
+    for (int i = 0; i < N; ++i) {
 
         Point point = {v1[i],v4[i]};
 
-        for (int y = v2+1; y< point.y+1; y++){
-            G.Gy[v1[i]*(M+1)+y] +=1;
+        for (int y = v2[i]; y < point.y+1; y++){
+            G.Gy[v1[i]*(G.M+1)+y] +=1;
         }
-        for (int x = v1+1; x< v3+1; x++){
-            G.Gx[v4[i]*(N+1)+x] +=1;
+        for (int x = point.x; x < v3[i]; x++){
+            G.Gx[v4[i]*(G.N+1)+x] +=1;
         }
-        Net net;
-        net.x1 = v1[i];
-        net.y1 v2[i];
-        net.x2 = v3[i];
-        net.y2 = v4[i];
-        net.Bends = 1; 
-        net.route = 
-        net.route[0] = new Point[nets.size()]; 
+        Net net {v1[i],v2[i],v3[i],v4[i],16};
+        net.route.push_back(point);
         // net.route only stores intermediate points in the path
         nets.push_back(net);
     } 
     // no need to exlicitly initialize constructors
 }
 
-// Function to schedule patterns
+// Function to schedule patterns, this is all fine
 void Netlist::pattern_schedule() {
     // Randomly shuffle the nets using Fisher-Yates
     int N = nets.size();
@@ -149,27 +145,29 @@ void Netlist::maze_schedule(float k) {
     }
 }
 
-float Netlist::SA_patternroute(Grid_Graph G){
-    
-    Point* L = new Point[nets.size()]; 
-    // items that may be stored inside GPU, handle with pointers and arrays
-    
+float Netlist::SA_patternroute(Grid_Graph G){ 
     float T = 1000;
     int N = nets.size();
-    vector<float> costs(0,(int)(5/log10(1/0.995)));
+    // Seed the random number generator
+    std::random_device rd;
+    std::mt19937 gen(rd()); // Mersenne Twister PRNG
+    // (uniform distribution between 0 and 1)
+    std::uniform_real_distribution<double> dist(0.0, 1.0);
+    std::vector<Point> L(N); 
+    // items that may be stored inside GPU, handle with pointers and arrays
+    std::vector<float> costs(0,(int)(5/log10(1/0.995+1)+1));
 
     float tot_cost = std::numeric_limits<float>::max();
     float new_tot_cost = 0;
     for (int i=0; i<N;i++){
-        new_tot_cost += batches[i].pattern_route(G,bestL,L,T);
+        new_tot_cost += batches[i].pattern_route(G,L,0,T,1);
     }
     tot_cost = new_tot_cost;
     int k = 0;
-
     while (T>0.01){
         k=0;
         for (int i=0; i<N;i++){
-            new_tot_cost += batches[i].pattern_route(G,bestL,L,T);
+            new_tot_cost += batches[i].pattern_route(G,L,0,T,dist(gen));
             k+=batches[i].N;
         }
         tot_cost = new_tot_cost;
@@ -177,14 +175,12 @@ float Netlist::SA_patternroute(Grid_Graph G){
         T = 0.995*T;
         costs.push_back(tot_cost);
     }
-    // iniitializing the routes
+    // initializing the routes
+    k=0;
     for (int i=0; i<N;i++){
-        /*
-        Based on older code, need to correct this
-        */
-        batches[i].save_patterns(bestL+k);
+        batches[i].save_patterns(L,k);
+        k += batches[i].N;
     }
-    delete[] L;
 
     // Storing the costs to pattern_costs.txt
     std::ofstream outputFile(costfile);
@@ -196,9 +192,9 @@ float Netlist::SA_patternroute(Grid_Graph G){
     }
 
     // Write the vector elements to the file
-    for (size_t i = 0; i < patternCosts.size(); ++i) {
-        outputFile << patternCosts[i]; // Write the float value
-        if (i != patternCosts.size() - 1) {
+    for (size_t i = 0; i < costs.size(); ++i) {
+        outputFile << costs[i]; // Write the float value
+        if (i != costs.size() - 1) {
             outputFile << " "; // Add space separator if not the last element
         }
     }
@@ -209,30 +205,19 @@ float Netlist::SA_patternroute(Grid_Graph G){
 }
 
 void Netlist::mazer(Grid_Graph G) {
-    float*  Sdist1 = (float*)malloc(G.M*G.N*2*sizeof(float)); 
-    char*  Sdir1 = (char*)malloc(G.M*G.N*2*sizeof(char));
-    float*  Sdist2 = (float*)malloc(G.M*G.N*2*sizeof(float)); 
-    char*  Sdir2 = (char*)malloc(G.M*G.N*2*sizeof(char));
+    std::vector<float>  Sdist1(G.M*G.N);
+    std::vector<char> Sdir1(G.M*G.N);
+    std::vector<float>  Sdist2(G.M*G.N); 
+    std::vector<char> Sdir2(G.M*G.N);
     float k = 1.5;
     for (int i = 1000; i > 0; i--) {
-        for (int j = 0; j < N; j++) {
+        for (int j = 0; j < nets.size(); j++) {
             batches[j].maze_route(G, k, 2, Sdist1,Sdir1,Sdist2,Sdir2);
         }
     }
-    free(Sdist1);
-    free(Sdir1);
-    free(Sdist2);
-    free(Sdir2);
-    return 
+    return; 
 }
 
-"""
-Gen-AI prompt-
-A Net is a struct consisting of 4 integers, x1,y1,x2,y2 where (x1,y1)  and (x2,y2) represents points in a 2d grid, now define the bounding box
-of a net as the set of all grid points whose x coordinate is inside an interval of width k*abs(x1-x2) centered at (x1+x2)/2 and whose y coordinates 
-is within an interval of k*abs(y1-y2) centered at (y1+y2)/2. Write a cpp function whose arguments are 2 Net objcts, and a float k, and which returns 
-a bool true if the bounding boxes of the 2 nets dont overlap, and false if they do.
-"""
 inline bool Netlist::overlap(const Net& net1, const Net& net2, float k) {
     // Calculate the center of bounding boxes for both nets
     int centerX1 = (net1.x1 + net1.x2) / 2;
@@ -261,14 +246,6 @@ inline bool Netlist::overlap(const Net& net1, const Net& net2, float k) {
     return !(minX1 > maxX2 || maxX1 < minX2 || minY1 > maxY2 || maxY1 < minY2);
 }
 
-"""
-Gen-AI Prompt-
-User
-A Net is a struct consisting of 4 integers, x1,y1,x2,y2 where (x1,y1)  and (x2,y2) represents points in a 2d grid. Each net has a "boundary", which 
-is the set of all points that lie on the rectangle with its corners given by (x1,y1)(x2,y2),(x1,y2),(x2,y1). Write a cpp function whose arguments are 2
-Net objects, and a float k, and which returns a bool true if the rectangles of the 2 nets intersect each other, that is, share any common point, else return false.
-Have you remembered that if a rectangle is fully inside another, then too they dont intersect?
-"""
 inline bool checkRectangleIntersection(const Net& net1, const Net& net2) {
     // Check if rectangles intersect
     bool xOverlap = net1.x1 <= net2.x2 && net1.x2 >= net2.x1;
@@ -280,6 +257,3 @@ inline bool checkRectangleIntersection(const Net& net1, const Net& net2) {
 
     return xOverlap && yOverlap && !fullyInside;
 }
-
-// Destructor to release memory allocated for the route
-

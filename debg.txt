@@ -1,0 +1,14 @@
+/usr/bin/ld: /tmp/ccziHiRL.o: in function `main':
+main.cpp:(.text+0x16a): undefined reference to `Grid_Graph::Grid_Graph(int, int, int, float)'
+/usr/bin/ld: main.cpp:(.text+0x1c3): undefined reference to `Netlist::Netlist(Grid_Graph, std::vector<int, std::allocator<int> > const&, std::vector<int, std::allocator<int> > const&, std::vector<int, std::allocator<int> > const&, std::vector<int, std::allocator<int> > const&, float)'
+/usr/bin/ld: main.cpp:(.text+0x1cf): undefined reference to `Grid_Graph::~Grid_Graph()'
+/usr/bin/ld: main.cpp:(.text+0x208): undefined reference to `Netlist::SA_patternroute(Grid_Graph)'
+/usr/bin/ld: main.cpp:(.text+0x21e): undefined reference to `Grid_Graph::~Grid_Graph()'
+/usr/bin/ld: main.cpp:(.text+0x257): undefined reference to `Netlist::mazer(Grid_Graph)'
+/usr/bin/ld: main.cpp:(.text+0x263): undefined reference to `Grid_Graph::~Grid_Graph()'
+/usr/bin/ld: main.cpp:(.text+0x2ef): undefined reference to `Grid_Graph::~Grid_Graph()'
+/usr/bin/ld: main.cpp:(.text+0x30f): undefined reference to `Grid_Graph::~Grid_Graph()'
+/usr/bin/ld: main.cpp:(.text+0x378): undefined reference to `Grid_Graph::~Grid_Graph()'
+/usr/bin/ld: main.cpp:(.text+0x38d): undefined reference to `Grid_Graph::~Grid_Graph()'
+/usr/bin/ld: /tmp/ccziHiRL.o:main.cpp:(.text+0x3a2): more undefined references to `Grid_Graph::~Grid_Graph()' follow
+collect2: error: ld returned 1 exit status
