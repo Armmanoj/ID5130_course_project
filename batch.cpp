@@ -17,7 +17,7 @@ Batch(const std::vector<Net>& netVector, int i, int n) : N(n) {
 /*
 The below function is likely a small mess up, this has to be corrected to account for how data is stored in struct Net, it is called by Netlist.SA_patternroute();
 */
-void batch::save_patterns(std::vector<Point>& L, int k){
+void Batch::save_patterns(std::vector<Point>& L, int k){
     for (int i=0; i<N; i++){
         Point temp = {L[i+k].x,L[i+k].y};
         nets[i].route[0] = temp;
@@ -30,11 +30,11 @@ void batch::save_patterns(std::vector<Point>& L, int k){
 L is basically storing the set of routes for pattern routing, is this needed? There may be some issue here
 */
 float Batch::pattern_route(Grid_Graph G,std::vector<Point>& L, int k,float T, float p) {
-    tot_cost = 0;
+    float tot_cost = 0;
     float cost;
     float cost_new;
 
-    for (int = 0;i<N;i++){
+    for (int i = 0; i < N ; i++){
         Point point = L[i];
         int orientation;
         if (point.x==nets[i].x1 && point.y==nets[i].y2){ orientation == 0;}
@@ -152,12 +152,7 @@ void Batch::maze_route(Grid_Graph G, float k, float c,std::vector<float>& Sdist1
     /*
     Look more carefully at if the below double allocation is really necessary
     */
-
-    // rip up the full batch
-    for (int i=0; i<N; i++){
-        rip_wire(G, source,dest,nets[i].route, nets[i].route.size());
-    }
-   // Next all variables necessary for maze routing are made
+   // First all variables necessary for maze routing are made
    /*
     x,y -> source
     x1,y1 -> destination
@@ -178,6 +173,11 @@ void Batch::maze_route(Grid_Graph G, float k, float c,std::vector<float>& Sdist1
         int height1 = std::ceil(k * std::abs(source.y - dest.y));
         Point cornerl {centerX1 - width1 / 2,centerY1 - height1 / 2};
         Point cornerh {centerX1 + width1 / 2, centerY1 + height1 / 2};
+        // next rip up the current route
+        // rip up the full batch
+        for (int i=0; i<N; i++){
+            rip_wire(G, source,dest,nets[i].route, nets[i].route.size());
+        }
         // Initializing shortest paths inside the bounding box, use 2 Sdists and Sdirs
         /*
         Sdir1- If a cell is the source, then Sdir = 'x', if it is anywhere else on the source column, then it is 'u', if it is to the right of the source
@@ -228,12 +228,12 @@ void Batch::maze_route(Grid_Graph G, float k, float c,std::vector<float>& Sdist1
         float sum_cost = G.v ;
         int j = source.x;
         for (int k = source.y+1; k<cornerh.y; k++){
-            sum_cost+=weight(G.Gy[M*j+k+1],G.C,c);
+            sum_cost+=weight(G.Gy[(G.M+1)*j+k+1],G.C,c);
             Sdist2[G.M*j+k] = sum_cost;
         }
         sum_cost = G.v;
         for (int k = source.y-1; k>cornerl.y; k--){
-            sum_cost+=weight(G.Gy[M*j+k+1],G.C,c);
+            sum_cost+=weight(G.Gy[(G.M+1)*j+k+1],G.C,c);
             Sdist2[G.M*j+k] = sum_cost;
         }
         Sdist2[G.M*j+source.y] = G.v;
@@ -243,13 +243,13 @@ void Batch::maze_route(Grid_Graph G, float k, float c,std::vector<float>& Sdist1
             Sdist1[G.N*j+k] = v + Sdist2[G.N*k+j];
             float sum_cost = Sdist1[G.N*j+k];
             for (j = source.x+1; j<cornerh.x; j++){
-                sum_cost += weight(G.Gx[N*k+j],G.C,c); 
+                sum_cost += weight(G.Gx[(G.N+1)*k+j],G.C,c); 
                 Sdist1[G.N*j+k] = sum_cost;
             }
             j = source.x;
             sum_cost = Sdist1[G.N*j+k];
             for (j = source.x-1; j>cornerl.x; j--){
-                sum_cost += weight(G.Gx[N*k+j+1],G.C,c);
+                sum_cost += weight(G.Gx[(G.N+1)*k+j+1],G.C,c);
                  Sdist1[G.N*j+k] = sum_cost;
             }
         }
@@ -328,19 +328,19 @@ void Batch::maze_route(Grid_Graph G, float k, float c,std::vector<float>& Sdist1
         int b = 0;
         char dir = 'x';
         char diro = 'y';
-        while (here != source){
+        while ((here.X != source.X) && (here.y != source.y)){
             if (layer==0){
-                dir = Sdir1(G.N*here.y+here.x);
+                dir = Sdir1[G.N*here.y+here.x];
             }
             else{
-                dir = Sdir2(G.M*here.x+here.y);
+                dir = Sdir2[G.M*here.x+here.y];
             }
             if (dir != diro){
                 if (b<nets[i].size()){
                     nets[i].route[b] = here;
                 }
                 else{
-                    nets[i].push_back(here);
+                    nets[i].route.push_back(here);
                 }
             }
             if (layer==0){
@@ -373,7 +373,6 @@ void Batch::maze_route(Grid_Graph G, float k, float c,std::vector<float>& Sdist1
             }
             b++;
         }
-        nets[i].Bends = b-1;
     } 
     return;
 }
