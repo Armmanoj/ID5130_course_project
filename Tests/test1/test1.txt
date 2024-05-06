@@ -1,6 +1,6 @@
 ;cap
 ; lines beginning with ; are comments, below format is M(no. of rows) N(no. of columns) C(capacity,assume CX = Cy) v(cost per via/ cost per unit wire)
-8 8 2 4
+8 8 2 1
 ;net
 ; format is x1 y1 x2 y2
 0 2 1 0

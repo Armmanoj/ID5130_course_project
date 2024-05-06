@@ -13,5 +13,7 @@
 #include <ctime>
 #include <algorithm>
 #include <random>
+#define BOX_MIN_DIM 9 // determines the minimum width or length of bounding box, can be 32 say
+#define MAZE_ROUTE_ITER 100
 #endif // MY_INCLUDES_H
 

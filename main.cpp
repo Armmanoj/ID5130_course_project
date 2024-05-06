@@ -3,9 +3,113 @@
 #include "netlist.hpp"
 #include "main.hpp"
 #include "struct.hpp"
+#include <omp.h>
 
 void readDataFromFile(const char* filename, int* M, int* N, int* C, int* v, std::vector<int>& x1, std::vector<int>& y1, std::vector<int>& x2, std::vector<int>& y2) ;
 void StoreToFile(const char* filename,Grid_Graph G, std::vector<Net>& nets); 
+/*
+write a void function named disp_routelist(Netlist Netlist); whose argument is of type class Netlist {
+public:
+    std::vector<Net> nets;      // Vector of nets} and this is net struct Net {
+    int x1, y1, x2, y2;
+    std::vector<Point> route;
+
+    // Default constructor
+    Net() : x1(0), y1(0), x2(0), y2(0) {}
+
+    // Parameterized constructor
+    Net(int v1, int v2, int v3, int v4, size_t size)
+        : x1(v1), y1(v2), x2(v3), y2(v4), route(size) {}
+};
+it has to pint each route in a seperate line over all the nets in the netlist
+*/
+
+
+void disp_routelist(Netlist netlist) {
+    for (const auto& net : netlist.nets) {
+        for (const auto& point : net.route) {
+            std::cout << "(" << point.x << "," << point.y << ") ";
+        }
+        std::cout << std::endl;
+    }
+}
+
+void disp_netlist(Netlist netlist) {
+    for (const auto& net : netlist.nets) {
+        std::cout << net.x1 << " " << net.y1 << " " << net.x2 << " " << net.y2 << std::endl;
+    }
+}
+
+/*
+Gen AI prompt-
+Write a function void disp_batches(Netlist Netlist); that does the following: Netlist id the following class  class Netlist {
+public:
+    std::vector<Net> nets;      // Vector of nets
+    std::vector<Batch> batches; // Vector of batches} and nets is the following struct struct Net {
+    int x1, y1, x2, y2;
+    std::vector<Point> route;
+
+    // Default constructor
+    Net() : x1(0), y1(0), x2(0), y2(0) {}
+
+    // Parameterized constructor
+    Net(int v1, int v2, int v3, int v4, size_t size)
+        : x1(v1), y1(v2), x2(v3), y2(v4) {
+        route.reserve(size);
+    }
+}; and batches is the following class  class Batch {
+public:
+    std::vector<Net> nets;  // Vector of nets
+    int N; // size of batch
+}  now print all the batches in the followinng format batch number (index of batch in batches vector) - 
+and in the following lines print whitespace seperated x1,y1,x2,y2 for each of the nets in that batch, 1 net 
+per line
+*/
+void disp_batches(Netlist netlist) {
+    for (size_t i = 0; i < netlist.batches.size(); ++i) {
+        std::cout << "Batch number " << i << std::endl;
+        const Batch& batch = netlist.batches[i];
+        for (const auto& net : batch.nets) {
+            std::cout << net.x1 << " " << net.y1 << " " << net.x2 << " " << net.y2 << std::endl;
+        }
+    }
+}
+
+/*
+Write a function void disp_routes(Netlist Netlist); that does the following: Netlist id the following class  class Netlist {
+public:
+    std::vector<Net> nets;      // Vector of nets
+    std::vector<Batch> batches; // Vector of batches} and nets is the following struct struct Net {
+    int x1, y1, x2, y2;
+    std::vector<Point> route;
+
+    // Default constructor
+    Net() : x1(0), y1(0), x2(0), y2(0) {}
+
+    // Parameterized constructor
+    Net(int v1, int v2, int v3, int v4, size_t size)
+        : x1(v1), y1(v2), x2(v3), y2(v4) {
+        route.reserve(size);
+    }
+}; and batches is the following class  class Batch {
+public:
+    std::vector<Net> nets;  // Vector of nets
+    int N; // size of batch
+}  now print all the batches in the followinng format batch number (index of batch in batches vector) 
+- and in the following lines print route for each of the nets in that batch, 1 net per line
+*/
+void disp_routes(Netlist netlist) {
+    for (size_t i = 0; i < netlist.batches.size(); ++i) {
+        std::cout << "Batch number " << i << std::endl;
+        const Batch& batch = netlist.batches[i];
+        for (const auto& net : batch.nets) {
+            std::cout << "Net " << net.x1 << "," << net.y1 << " to " << net.x2 << "," << net.y2 << " Route:" << std::endl;
+            for (const auto& point : net.route) {
+                std::cout << point.x << "," << point.y << std::endl;
+            }
+        }
+    }
+}
 
 int main(int argc, char *argv[]) {
     /*
@@ -36,13 +140,40 @@ int main(int argc, char *argv[]) {
     readDataFromFile(infilename, &M, &N, &C, &v, x1, y1, x2, y2);
     // create the return data structures, Gx, Gy are dynamically allocated with pointers due to large size, and as it will be passed to GPU
     Grid_Graph G(M,N,C,v);
+    std::cout << "Grid graph successfully made" << std::endl;
+    Netlist Netlist(G,x1,y1,x2,y2);
+    std::cout << "Netlist successfully made" << std::endl;
+    std::cout << "displaying generated route lists and then netlists" << std::endl;
+    disp_routelist(Netlist);
+    disp_netlist(Netlist);
+    std::cout << std::endl;
 
-    Netlist Netlist(G,x1,y1,x2,y2, G.v);
+
     //Do the routing
-    float cost;
-    cost = Netlist.SA_patternroute(G); 
-    Netlist.mazer(G) ;
-    std::cout << "Final cost is " << cost << std::endl; 
+    //float cost;
+    //double T = omp_get_wtime();
+    //Netlist.pattern_schedule();
+    //std::cout << "Pattern routing successfully scheduled" << std::endl;
+
+    //cost = Netlist.SA_patternroute(G);
+    //double T_ = omp_get_wtime();
+    //std::cout << "Pattern routing successfully performed" << std::endl;
+    disp_routes(Netlist);
+    std::cout << "Batches for maze routing " << std::endl;
+    disp_batches(Netlist);
+    float k = 4;
+    Netlist.maze_schedule(G,k);
+    double T__ = omp_get_wtime();
+    Netlist.mazer(G,k);
+    double T___ = omp_get_wtime();
+    std::cout << "The final batches are " << std::endl;
+    disp_batches(Netlist);
+    std::cout << "The final routes are " << std::endl;
+    disp_routes(Netlist);
+    G.boundary_cond();
+    //std::cout << "Final cost is " << cost << std::endl; 
+    //std::cout << "Pattern routing time is " << T_-T << std::endl; 
+    std::cerr << "Maze routing is " << T___-T__ << std::endl; 
     // Store the result
     StoreToFile(outfilename, G, Netlist.nets);
     return 0;
@@ -58,6 +189,7 @@ seperated by a white space, which are the ith elements of 4 vectors x1,y1,x2,y2.
 M,N,C and v. The input to the function are pointers to M,N,C,v and vectors x1,y1,x2,y2 and the function stores the values read in them.
 */
 void readDataFromFile(const char* filename, int* M, int* N, int* C, int* v, std::vector<int>& x1, std::vector<int>& y1, std::vector<int>& x2, std::vector<int>& y2) {
+    
     std::ifstream file(filename);
     std::string line;
     int lineNumber = 0;
@@ -101,7 +233,7 @@ Write a cpp function StoreToFile(a string filename,int M, int N,int* Gx, int* GY
  Gx is a flatenned array with M rows and N+1 columns, while Gy is a flattened array with M+1 rows and N columns. net_x and net_y have the 
  same number of sub-vectors, with corresponding sub-vectors having equall length The function should store the following data in the following format- 
  The first lines should have M N seperated by a whitespace, next Gx should be stored with elements in each row seperated by white spaces and rows in different 
- lines, and then Gy should be stored in the same format. The for each pair of subvectors in net_x and net_y, store the subvectors as net_x[0] net_y[0] net_x[1] 
+ lines, and then Gy should be stored in the same format. Then for each pair of subvectors in net_x and net_y, store the subvectors as net_x[0] net_y[0] net_x[1] 
  net_y[1] ... net_x[...] net_y[...]. seperated by whitespaces, 1 pair of subvectors per row
 
 */

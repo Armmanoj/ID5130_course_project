@@ -7,6 +7,8 @@ struct Point {
     int y;
 };
 
+
+
 // Struct representing a net
 struct Net {
     int x1, y1, x2, y2;
@@ -17,9 +19,10 @@ struct Net {
 
     // Parameterized constructor
     Net(int v1, int v2, int v3, int v4, size_t size)
-        : x1(v1), y1(v2), x2(v3), y2(v4), route(size) {}
+        : x1(v1), y1(v2), x2(v3), y2(v4) {
+        route.reserve(size);
+    }
 };
-
 #endif // STRUCT_HPP
 
 

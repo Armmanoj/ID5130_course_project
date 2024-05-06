@@ -13,13 +13,13 @@ def read_out_file(filename):
         M, N = map(int, line.split())
         
         # Read data for array Gridx
-        Gridx = np.zeros((M, N-1), dtype=int)
+        Gridx = np.zeros((M, N+1), dtype=int)
         for i in range(M):
             line = file.readline().strip()
             Gridx[i] = list(map(int, line.split()))
         
         # Read data for Gridy
-        Gridy = np.zeros((N, M-1), dtype=int)
+        Gridy = np.zeros((M+1,N), dtype=int)
         for i in range(N):
             line = file.readline().strip()
             Gridy[i] = list(map(int, line.split()))

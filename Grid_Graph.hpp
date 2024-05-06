@@ -9,10 +9,7 @@ public:
     float v;
     // Constructor
     Grid_Graph(int M_val, int N_val, int C_val, float v_val);
-
-    // Destructor
-    ~Grid_Graph();
-
+    void boundary_cond();
     // Function to calculate number of elements greater than C
     int overflows();
 };

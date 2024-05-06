@@ -8,13 +8,18 @@ Grid_Graph::Grid_Graph(int M_val, int N_val, int C_val, float v_val) : M(M_val),
     Gy = (int*)calloc((M + 1) * N, sizeof(int));
 }
 
-// Destructor to free memory automatically
-Grid_Graph::~Grid_Graph() {
-    free(Gx);
-    free(Gy);
-}
 
-// calculate nuber of electrical shorts in the chip
+void Grid_Graph::boundary_cond(){
+    for (int i = 0; i<N;i++){
+        Gy[(M+1)*i] = 0;
+        Gy[(M+1)*(i+1)-1] = 0;
+    }
+    for (int i = 0; i<M;i++){
+        Gx[(N+1)*i] = 0;
+        Gx[(N+1)*(i+1)-1] = 0;
+    }
+}
+// calculate number of electrical shorts in the chip
 int Grid_Graph::overflows() {
     int count = 0;
     for (int i = 0; i < (N + 1) * M; i++) {
@@ -29,3 +34,6 @@ int Grid_Graph::overflows() {
     }
     return count;
 }
+
+
+// Important
