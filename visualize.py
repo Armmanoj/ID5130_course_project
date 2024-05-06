@@ -82,5 +82,5 @@ for i in range(M):
         Grid[i,j] = (r+l+u+d)*0.25
 
 plot_path_on_grid(Grid, path)
-plot_paths_on_grid(Grid, path[69:70])
+plot_paths_on_grid(Grid, path)
 
