@@ -16,15 +16,15 @@ public:
     void pattern_schedule();
 
     // Function to schedule maze with parameter k
-    void maze_schedule(Grid_Graph G,float k);
+    void maze_schedule(Grid_Graph G,float k, int BOX_MIN_DIM);
 
     // Function to perform simulated annealing for pattern route
     float SA_patternroute(Grid_Graph G);
 
     // Function to perform maze routing
-    void mazer(Grid_Graph G,float k);
+    void mazer(Grid_Graph G,float k, int NUM_THREADS, int BOX_MIN_DIM, int MAZE_ROUTE_ITER);
 
-    inline bool overlap(const Net& net1, const Net& net2, float k);
+    inline bool overlap(const Net& net1, const Net& net2, float k, int BOX_MIN_DIM);
     inline bool checkRectangleIntersection(const Net& net1, const Net& net2); 
     
 };

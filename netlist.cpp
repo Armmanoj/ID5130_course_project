@@ -5,6 +5,10 @@
 
 #define costfile "pattern_costs.txt"
 
+extern int MAZE_ROUTE_ITER;
+extern int BOX_MIN_DIM;
+extern int NUM_THREADS;
+
 // Constructor
 Netlist::Netlist(Grid_Graph G, const std::vector<int>& v1, const std::vector<int>& v2, const std::vector<int>& v3, const std::vector<int>& v4) {
     int N = v1.size();
@@ -87,7 +91,7 @@ void Netlist::pattern_schedule() {
 }
 
 // Function to schedule maze with parameter k
-void Netlist::maze_schedule(Grid_Graph G,float k) {
+void Netlist::maze_schedule(Grid_Graph G,float k, int BOX_MIN_DIM) {
     int N = nets.size();
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
     for (int i = N - 1; i > 0; --i) {
@@ -104,7 +108,7 @@ void Netlist::maze_schedule(Grid_Graph G,float k) {
             clique[i] = id;
             int count = 0;
             for (int j = i + 1; j < N; ++j) {
-                if (clique[j] == 0 && !overlap(nets[i], nets[j], k)) {
+                if (clique[j] == 0 && !overlap(nets[i], nets[j], k, BOX_MIN_DIM)) {
                     clique[j] = id;
                     count++;
                 }
@@ -213,7 +217,7 @@ float Netlist::SA_patternroute(Grid_Graph G) {
 }
 
 // Function to perform maze routing
-void Netlist::mazer(Grid_Graph G,float k) {
+void Netlist::mazer(Grid_Graph G,float k, int NUM_THREADS,int BOX_MIN_DIM, int MAZE_ROUTE_ITER) {
     std::vector<float> Sdist1(G.M * G.N);
     std::vector<char> Sdir1(G.M * G.N);
     std::vector<float> Sdist2(G.M * G.N);
@@ -221,14 +225,14 @@ void Netlist::mazer(Grid_Graph G,float k) {
     for (int i=0; i<MAZE_ROUTE_ITER; i++){
         for (int j=0; j<batches.size(); j++) {
             //std::cout << "Maze routing a batch " << std::endl;
-            batches[j].maze_route(G, k, 2, Sdist1, Sdir1, Sdist2, Sdir2);
+            batches[j].maze_route(G, k, 2, Sdist1, Sdir1, Sdist2, Sdir2, NUM_THREADS, BOX_MIN_DIM);
         }
         std::cerr << "Iteration " << i << std::endl;
     }
 }
 
 // Function to check if two nets overlap
-inline bool Netlist::overlap(const Net& net1, const Net& net2, float k) {
+inline bool Netlist::overlap(const Net& net1, const Net& net2, float k, int BOX_MIN_DIM) {
     int centerX1 = (net1.x1 + net1.x2) / 2;
     int centerY1 = (net1.y1 + net1.y2) / 2;
     int centerX2 = (net2.x1 + net2.x2) / 2;
