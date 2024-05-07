@@ -126,7 +126,7 @@ int main(int argc, char *argv[]) {
     ReadDataFromFile
     Router
     */
-    if (argc != 6) {
+    if (argc != 3){//6) {
         std::cerr << "Correct format is ./" << argv[0] << " <input filename> <output filename> <Bounding Box Dimensions> <Number of Iterations for Maze Route> <Number of Threads for Parallelising>\n";
         return 1;
     }
@@ -264,7 +264,14 @@ void StoreToFile(const char* filename,Grid_Graph G, Netlist Netlist) {
         }
 
         // Write Gy to the file
-        for (int i = 0; i < G.M + 1; ++i) {
+        for (int j = 0; j < G.N; ++j) {
+            file << 0;
+            if (j < G.N - 1) {
+                file << " ";
+            }
+        }
+        file << std::endl;
+        for (int i = 1; i < G.M ; ++i) {
             for (int j = 0; j < G.N; ++j) {
                 file << G.Gy[i * (G.N+1) + j];
                 if (j < G.N - 1) {
@@ -273,6 +280,13 @@ void StoreToFile(const char* filename,Grid_Graph G, Netlist Netlist) {
             }
             file << std::endl;
         }
+        for (int j = 0; j < G.N; ++j) {
+            file << 0;
+            if (j < G.N - 1) {
+                file << " ";
+            }
+        }
+        file << std::endl;
         std::cerr << "Netlist size is " << Netlist.batches.size() << std::endl;
         // Write net_x and net_y pairs to the file
         for (int k=0; k<Netlist.batches.size();k++){

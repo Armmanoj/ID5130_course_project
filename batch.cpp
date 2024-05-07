@@ -245,7 +245,7 @@ float Batch::survey(Grid_Graph G,Net net,int orientation){
     return cost;
 }
 // Function to perform maze route
-void Batch::maze_route(Grid_Graph G, float k, float c,std::vector<float>& Sdist1,std::vector<char>&  Sdir1,std::vector<float>& Sdist2,std::vector<char>&  Sdir2, int NUM_THREADS, int BOX_MIN_DIM) {
+void Batch::maze_route(Grid_Graph G, float k, float c,std::vector<float>& Sdist1,std::vector<char>&  Sdir1,std::vector<float>& Sdist2,std::vector<char>&  Sdir2) {
     /*
     Look more carefully at if the below double allocation is really necessary
     */
