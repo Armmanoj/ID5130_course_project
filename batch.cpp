@@ -267,13 +267,14 @@ void Batch::maze_route(Grid_Graph G, float k, float c,std::vector<float>& Sdist1
         int height1;
         Point cornerl;
         Point cornerh;
+        #pragma omp for schedule(dynamic,1)
         for (int i=0; i<N; i++){
             source = {nets[i].x1,nets[i].y1};
             dest = {nets[i].x2,nets[i].y2};
             rip_wire(G, source,dest,nets[i].route);
         }
-        //std::cout << "ripped up " << std::endl;
-        
+        std::cerr << "ripped up " << std::endl;
+        #pragma omp for schedule(dynamic,1)
         for (int i=0; i<N; i++){
             source = {nets[i].x1,nets[i].y1};
             dest = {nets[i].x2,nets[i].y2};
@@ -285,7 +286,7 @@ void Batch::maze_route(Grid_Graph G, float k, float c,std::vector<float>& Sdist1
             cornerl = {std::max(0,(int)(centerX1 - width1 / 2)),std::max(0,(int)(centerY1 - height1 / 2))};
             cornerh = {std::min(G.N-1,(int)(centerX1 + width1 / 2)),std::min(G.M-1,(int)(centerY1 + height1 / 2))};
             //std::cout << "corner l " << cornerl.x << " " << cornerl.y << std::endl;
-            //std::cerr << "corner h " << cornerh.x << " " << cornerh.y << std::endl;
+            std::cerr << "corner h " << cornerh.x << " " << cornerh.y << std::endl;
             //initializing Sdists, Sdirs
             for (int i = 0; i<G.M;i++){
                 for (int j = 0; j<G.N;j++){
@@ -378,51 +379,88 @@ void Batch::maze_route(Grid_Graph G, float k, float c,std::vector<float>& Sdist1
                 }
                 //disp_s(Sdist1,Sdist2,Sdir1,Sdir2,G.M,G.N);
             }
-            ////std::cout << "Bellmann ford relaxations are completed " << std::endl;
+            std::cerr << "Bellmann ford relaxations are completed " << std::endl;
             
 
             // Backtrack and store the results
             // this has to be done completely in serial
-            Point here = dest;
-            int layer = 0;
-            char dir;
-            char diro; // so that dest is not saved in route
-            ////std::cout << "Located at " << here.x << " " << here.y << std::endl;
-            nets[i].route.clear();
-            while (!((here.x == source.x) && (here.y == source.y))){
-                // first check which direction to enter "here" from
-                ////std::cout << "At " << here.x << " " << here.y << std::endl;
-                if (layer){
-                    dir = Sdir2[G.M*here.x+here.y];
+        }
+        
+        #pragma omp for 
+        for(int i=0; i<N;i++){
+            #pragma omp critical
+            // This save time as each core has its Sdist, etc in cache
+            {
+                Point here = dest;
+                //std::cerr << "Dest is " << here.x << " " << dest.y << std::endl;
+                //exit(1);
+                //std::cerr << "Source is " << source.x << " " << source.y << std::endl;
+                //exit(1);
+                int layer = 0;
+                char dir;
+                char diro; // so that dest is not saved in route
+                ////std::cout << "Located at " << here.x << " " << here.y << std::endl;
+                nets[i].route.clear();
+                //std::cerr << "Variables for backtracking are initialized " << std::endl;
+                std::cerr << i << std::endl;
+                while (!((here.x == source.x) && (here.y == source.y))){
+                    //std::cerr << "here " << here.x << " " << source.x << " " << here.y << " " << source.y << std::endl;
+                    // first check which direction to enter "here" from
+                    ////std::cout << "At " << here.x << " " << here.y << std::endl;
+                    if (layer){
+                        //std::cerr << "Reached a layer = 1 " << std::endl;
+                        dir = Sdir2[G.M*here.x+here.y];
+                        //std::cerr << "Crossed a layer = 1 " << std::endl;
+                    }
+                    else{
+                        //std::cerr << "Reached a layer = 0 " << std::endl;
+                        dir = Sdir1[G.N*here.y+here.x];
+                        //std::cerr << "Crossed a layer = 0 " << std::endl;
+                    }
+                    //std::cerr << "Checking if a bend is there  " << std::endl;
+                    if ((dir != diro)&&(dir!='d')&&(dir!='u')&&!((here.x == dest.x) && (here.y == dest.y))){
+                        //std::cerr << "Ready to print output " << std::endl;
+                        nets[i].route.push_back(here);
+                        //std::cerr << "Printed output " << std::endl;
+                        //std:: cout << "dir " << dir << std::endl;
+                        //std:: cout << "loc " << here.x << here.y << std::endl;
+                    }
+                    diro = dir;
+
+                 ///   std::cerr << "Dest is " << here.x << " " << dest.y << std::endl;
+                //exit(1);
+                //std::cerr << "Source is " << source.x << " " << source.y << std::endl;
+               // exit(1);
+                    // now update "here" or "layer"
+                    switch(dir){
+                        case 'd':
+                            layer = 0; break;
+                        case 'u':
+                            layer = 1; break;
+                        case 'l':
+                            here.x -= 1; break;
+                        case 'r':
+                            here.x += 1; break;
+                        case 'n':
+                            here.y += 1; break;
+                        case 's':
+                            here.y -= 1; break;
+                        default: break;
+                    }
+                  //  std::cerr << "Here is " << here.x << std::endl;
+                 //   std::cerr << "Dest is " << here.x << " " << dest.y << std::endl;
+                //exit(1);
+                //std::cerr << "Source is " << source.x << " " << source.y << std::endl;
+                //exit(1);
+                    //exit(1);
                 }
-                else{
-                    dir = Sdir1[G.N*here.y+here.x];
-                }
-                if ((dir != diro)&&(dir!='d')&&(dir!='u')&&!((here.x == dest.x) && (here.y == dest.y))){
-                    nets[i].route.push_back(here);
-                    //std:: cout << "dir " << dir << std::endl;
-                    //std:: cout << "loc " << here.x << here.y << std::endl;
-                }
-                diro = dir;
-                // now update "here" or "layer"
-                switch(dir){
-                    case 'd':
-                        layer = 0; break;
-                    case 'u':
-                        layer = 1; break;
-                    case 'l':
-                        here.x -= 1; break;
-                    case 'r':
-                        here.x += 1; break;
-                    case 'n':
-                        here.y += 1; break;
-                    case 's':
-                        here.y -= 1; break;
-                    default: break;
-                }
-                
             }
+
+        }
+        #pragma omp for schedule(dynamic,1)
+        for(int i=0;i<N; i++){
             std::reverse(nets[i].route.begin(),nets[i].route.end());
+            //std::cerr << "Reversed nets " << std::endl;
             /*
             
             if (1){//source.x==0&&source.y==0&&dest.x==3&&dest.y==3){
@@ -432,9 +470,7 @@ void Batch::maze_route(Grid_Graph G, float k, float c,std::vector<float>& Sdist1
                 std::cerr << std::endl;
             }
             */
-        } 
         // update grid graph
-        for (int i=0; i<N; i++){
             source = {nets[i].x1,nets[i].y1};
             dest = {nets[i].x2,nets[i].y2};
             route_wire(G, source,dest,nets[i].route);
@@ -442,7 +478,6 @@ void Batch::maze_route(Grid_Graph G, float k, float c,std::vector<float>& Sdist1
     }
     return;
 }
-
 
 /*
 we need to rip multiple bends
