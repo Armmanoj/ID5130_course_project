@@ -7,9 +7,6 @@
 vector<route> is bsed on old way  of storing data, has to be fixed
 */
 
-extern int NUM_THREADS;
-extern int BOX_MIN_DIM;
-
 Batch::Batch(std::vector<Net> netVector, int i, int n) : N(n) {
     // Store elements from netVector starting from index i up to index i+n into a vector named nets
     for (int j = i; j < i + n && j < netVector.size(); ++j) {
@@ -34,7 +31,7 @@ void Batch::save_patterns(std::vector<Point>& L, int k){
 L is basically storing the set of routes for pattern routing, is this needed? There may be some issue here
 */
 float Batch::pattern_route(Grid_Graph G, int k, float T, float p) {
-    //std::cerr << "Performing pattern routing..." << std::endl;
+    std::cerr << "Performing pattern routing..." << std::endl;
     float tot_cost = 0;
     float cost;
     float cost_new;
@@ -50,36 +47,36 @@ float Batch::pattern_route(Grid_Graph G, int k, float T, float p) {
                 orientation = 1;
             }
 
-            //std::cerr << "Net #" << i << ": (" << nets[i].x1 << "," << nets[i].y1 << ") to ("
-                    //<< nets[i].x2 << "," << nets[i].y2 << "), Orientation: " << orientation << std::endl;
+            std::cerr << "Net #" << i << ": (" << nets[i].x1 << "," << nets[i].y1 << ") to ("
+                    << nets[i].x2 << "," << nets[i].y2 << "), Orientation: " << orientation << std::endl;
 
             cost = ripL(G, nets[i], orientation);
-            //std::cout << "Cost of ripping is " << cost << std::endl;
+            std::cout << "Cost of ripping is " << cost << std::endl;
             cost_new = survey(G, nets[i], 1 - orientation);
-            //std::cout << "Cost of other orientation is " << cost_new << std::endl;
+            std::cout << "Cost of other orientation is " << cost_new << std::endl;
             if (cost_new < cost) {
                 routeL(G, nets[i], 1 - orientation);
                 point = {nets[i].x2, nets[i].y1};
                 nets[i].route[0] = point;
-                //std::cerr << "New orientation for Net #" << i << " is " << (1 - orientation) << std::endl;
+                std::cerr << "New orientation for Net #" << i << " is " << (1 - orientation) << std::endl;
             } else {
                 if (exp((cost - cost_new) / T) > p) {
                     routeL(G, nets[i], 1 - orientation);
                     point = {nets[i].x2, nets[i].y1};
                     nets[i].route[0] = point;
-                    //std::cerr << "Switching orientation for Net #" << i << std::endl;
+                    std::cerr << "Switching orientation for Net #" << i << std::endl;
                 } else {
                     routeL(G, nets[i], orientation);
-                    //std::cerr << "Retaining current orientation for Net #" << i << std::endl;
+                    std::cerr << "Retaining current orientation for Net #" << i << std::endl;
                 }
             }
 
             tot_cost += cost_new;
-            //std::cerr << "Total cost for Net #" << i << ": " << tot_cost << std::endl;
+            std::cerr << "Total cost for Net #" << i << ": " << tot_cost << std::endl;
         }
     }
 
-    //std::cerr << "Pattern routing completed. Total cost: " << tot_cost << std::endl;
+    std::cerr << "Pattern routing completed. Total cost: " << tot_cost << std::endl;
     return tot_cost;
 }
 
@@ -108,9 +105,9 @@ horizontally, decrement G.Gx of the corresponding point by 1 for each step
 */
 
 float Batch::ripL(Grid_Graph G, Net net, int orientation) {
-    //std::cerr << "Entering ripL function with orientation: " << orientation << std::endl;
+    std::cerr << "Entering ripL function with orientation: " << orientation << std::endl;
     float costnew = 0;
-    //std::cout << costnew << std::endl;
+    std::cout << costnew << std::endl;
     if (orientation == 0) {
         // First traverse vertically, then horizontally (turn at x1, y2)
         // Vertical traversal
@@ -119,16 +116,16 @@ float Batch::ripL(Grid_Graph G, Net net, int orientation) {
                 int gy_index = net.x1 * (G.M + 1) + y+1;
                 G.Gy[gy_index] -= 1;
                 costnew += weight_pr(G.Gy[gy_index],G.C);
-                //std::cout << "grid graph" << G.Gy[gy_index] << std::endl;
-                //std::cout << costnew << std::endl;
+                std::cout << "grid graph" << G.Gy[gy_index] << std::endl;
+                std::cout << costnew << std::endl;
             }
         } else {
             for (int y = net.y1 - 1; y > net.y2; --y) {
                 int gy_index = net.x1 * (G.M + 1) + y;
                 G.Gy[gy_index] -= 1;
                 costnew += weight_pr(G.Gy[gy_index],G.C);
-                //std::cout << "grid graph" << G.Gy[gy_index] << std::endl;
-                //std::cout << costnew << std::endl;
+                std::cout << "grid graph" << G.Gy[gy_index] << std::endl;
+                std::cout << costnew << std::endl;
             }
         }
 
@@ -138,8 +135,8 @@ float Batch::ripL(Grid_Graph G, Net net, int orientation) {
                 int gx_index = net.y2 * (G.N + 1) + x+1;
                 G.Gx[gx_index] -= 1;
                 costnew += weight_pr(G.Gx[gx_index],G.C);
-                //std::cout << "grid graph" << G.Gx[gx_index] << std::endl;
-                //std::cout << costnew << std::endl;
+                std::cout << "grid graph" << G.Gx[gx_index] << std::endl;
+                std::cout << costnew << std::endl;
             }
         } 
         else {
@@ -147,8 +144,8 @@ float Batch::ripL(Grid_Graph G, Net net, int orientation) {
                 int gx_index = net.y2 * (G.N + 1) + x;
                 G.Gx[gx_index] -= 1;
                 costnew += weight_pr(G.Gx[gx_index],G.C);
-                //std::cout << "grid graph" << G.Gx[gx_index] << std::endl;
-                //std::cout << costnew << std::endl;
+                std::cout << "grid graph" << G.Gx[gx_index] << std::endl;
+                std::cout << costnew << std::endl;
             }
         }
     } else {
@@ -159,8 +156,8 @@ float Batch::ripL(Grid_Graph G, Net net, int orientation) {
                 int gx_index = net.y1 * (G.N + 1) + x+1;
                 G.Gx[gx_index] -= 1;
                 costnew += weight_pr(G.Gx[gx_index],G.C);
-                //std::cout << "grid graph" << G.Gx[gx_index] << std::endl;
-                //std::cout << costnew << std::endl;
+                std::cout << "grid graph" << G.Gx[gx_index] << std::endl;
+                std::cout << costnew << std::endl;
             }
         }
         else {
@@ -168,8 +165,8 @@ float Batch::ripL(Grid_Graph G, Net net, int orientation) {
                 int gx_index = net.y1 * (G.N + 1) + x;
                 G.Gx[gx_index] -= 1;
                 costnew += weight_pr(G.Gx[gx_index],G.C);
-                //std::cout << "grid graph" << G.Gx[gx_index] << std::endl;
-                //std::cout << costnew << std::endl;
+                std::cout << "grid graph" << G.Gx[gx_index] << std::endl;
+                std::cout << costnew << std::endl;
             }
         }
 
@@ -179,8 +176,8 @@ float Batch::ripL(Grid_Graph G, Net net, int orientation) {
                 int gy_index = net.x2 * (G.M + 1) + y+1;
                 G.Gy[gy_index] -= 1;
                 costnew += weight_pr(G.Gy[gy_index],G.C);
-                //std::cout << "grid graph" << G.Gy[gy_index] << std::endl;
-                //std::cout << costnew << std::endl;
+                std::cout << "grid graph" << G.Gy[gy_index] << std::endl;
+                std::cout << costnew << std::endl;
             }
         }
         else {
@@ -188,14 +185,14 @@ float Batch::ripL(Grid_Graph G, Net net, int orientation) {
                 int gy_index = net.x2 * (G.M + 1) + y;
                 G.Gy[gy_index] -= 1;
                 costnew += weight_pr(G.Gy[gy_index],G.C);
-                //std::cout << costnew << std::endl;
+                std::cout << costnew << std::endl;
             }
         }
     }
-    //std::cerr << "Exiting ripL with total cost: " << costnew << std::endl;
-    //std::cout << costnew << std::endl;
+    std::cerr << "Exiting ripL with total cost: " << costnew << std::endl;
+    std::cout << costnew << std::endl;
     return costnew;
-    //std::cout << "Hi anurag" << std::endl; 
+    std::cout << "Hi anurag" << std::endl; 
 }
 
 void Batch::routeL(Grid_Graph G,Net net,int orientation){
@@ -245,7 +242,7 @@ float Batch::survey(Grid_Graph G,Net net,int orientation){
     return cost;
 }
 // Function to perform maze route
-void Batch::maze_route(Grid_Graph G, float k, float c,std::vector<float>& Sdist1,std::vector<char>&  Sdir1,std::vector<float>& Sdist2,std::vector<char>&  Sdir2, int NUM_THREADS, int BOX_MIN_DIM) {
+void Batch::maze_route(Grid_Graph G, float k, float c,std::vector<float>& Sdist1,std::vector<char>&  Sdir1,std::vector<float>& Sdist2,std::vector<char>&  Sdir2) {
     /*
     Look more carefully at if the below double allocation is really necessary
     */
@@ -260,188 +257,174 @@ void Batch::maze_route(Grid_Graph G, float k, float c,std::vector<float>& Sdist1
     Sdist, Sdir are allocated outside the function
     */ 
     // rip up the full batch
-    #pragma omp parallel num_threads(NUM_THREADS) 
-    {
-        Point source;
-        Point dest;
-        int centerX1;
-        int centerY1;
-        int width1;
-        int height1;
-        Point cornerl;
-        Point cornerh;
-        for (int i=0; i<N; i++){
-            source = {nets[i].x1,nets[i].y1};
-            dest = {nets[i].x2,nets[i].y2};
-            rip_wire(G, source,dest,nets[i].route);
+    Point source;
+    Point dest;
+    int centerX1;
+    int centerY1;
+    int width1;
+    int height1;
+    Point cornerl;
+    Point cornerh;
+    for (int i=0; i<N; i++){
+        source = {nets[i].x1,nets[i].y1};
+        dest = {nets[i].x2,nets[i].y2};
+        rip_wire(G, source,dest,nets[i].route);
+    }
+    std::cout << "ripped up " << std::endl;
+    
+    for (int i=0; i<N; i++){
+        source = {nets[i].x1,nets[i].y1};
+        dest = {nets[i].x2,nets[i].y2};
+        // calculate corners of bounding box
+        centerX1 = (source.x + dest.x) / 2;
+        centerY1 = (source.y + dest.y) / 2;
+        width1 = std::max((int)std::ceil(k * std::abs(source.x- dest.x)),BOX_MIN_DIM);
+        height1 = std::max((int)std::ceil(k * std::abs(source.y - dest.y)),BOX_MIN_DIM);
+        cornerl = {std::max(0,(int)(centerX1 - width1 / 2)),std::max(0,(int)(centerY1 - height1 / 2))};
+        cornerh = {std::min(G.N-1,(int)(centerX1 + width1 / 2)),std::min(G.M-1,(int)(centerY1 + height1 / 2))};
+        std::cout << "corner l " << cornerl.x << " " << cornerl.y << std::endl;
+        std::cout << "corner h " << cornerh.x << " " << cornerh.y << std::endl;
+        //initializing Sdists, Sdirs
+        for (int i = 0; i<G.M;i++){
+            for (int j = 0; j<G.N;j++){
+                Sdist1[i*G.N+j] = std::numeric_limits<int>::max();
+                Sdir1[i*G.N+j] = 'x';
+            }
         }
-        //std::cout << "ripped up " << std::endl;
-        
-        for (int i=0; i<N; i++){
-            source = {nets[i].x1,nets[i].y1};
-            dest = {nets[i].x2,nets[i].y2};
-            // calculate corners of bounding box
-            centerX1 = (source.x + dest.x) / 2;
-            centerY1 = (source.y + dest.y) / 2;
-            width1 = std::max((int)std::ceil(k * std::abs(source.x- dest.x)),BOX_MIN_DIM);
-            height1 = std::max((int)std::ceil(k * std::abs(source.y - dest.y)),BOX_MIN_DIM);
-            cornerl = {std::max(0,(int)(centerX1 - width1 / 2)),std::max(0,(int)(centerY1 - height1 / 2))};
-            cornerh = {std::min(G.N-1,(int)(centerX1 + width1 / 2)),std::min(G.M-1,(int)(centerY1 + height1 / 2))};
-            //std::cout << "corner l " << cornerl.x << " " << cornerl.y << std::endl;
-            //std::cerr << "corner h " << cornerh.x << " " << cornerh.y << std::endl;
-            //initializing Sdists, Sdirs
-            for (int i = 0; i<G.M;i++){
-                for (int j = 0; j<G.N;j++){
-                    Sdist1[i*G.N+j] = std::numeric_limits<int>::max();
-                    Sdir1[i*G.N+j] = 'x';
+        for (int i = 0; i<G.N;i++){
+            for (int j = 0; j<G.M;j++){
+                Sdist2[i*G.M+j] = std::numeric_limits<int>::max();
+                Sdir2[i*G.M+j] = 'x';
+            }
+        }
+        Sdist1[source.y*G.N+source.x] = 0;
+        //disp_s(Sdist1,Sdist2,Sdir1,Sdir2,G.M,G.N);
+        // Then do Bellman-Ford
+        bool flag = 1; // to keep track of if the relaxation step has caused any change to the distances and routes or not
+        while (flag){
+            flag = 0;
+            // Relaxing Sdir1 (rows)
+            for (int k = cornerl.y; k<cornerh.y+1; k++){
+                // left to right
+                for (int j = cornerl.x+1; j<cornerh.x+1; j++){
+                    if (Sdist1[G.N*k+j] > Sdist1[G.N*k+j-1]+weight_pr(G.Gx[(G.N+1)*k+j],G.C)){
+                        Sdist1[G.N*k+j] = Sdist1[G.N*k+j-1]+weight_pr(G.Gx[(G.N+1)*k+j],G.C);
+                        Sdir1[G.N*k+j] = 'l';
+                        flag = 1;
+                    }
+                }
+                // right to left
+                for (int j = cornerh.x-1; j>cornerl.x-1; j--){
+                    if (Sdist1[G.N*k+j] > Sdist1[G.N*k+j+1]+weight_pr(G.Gx[(G.N+1)*k+j+1],G.C)){
+                        Sdist1[G.N*k+j] = Sdist1[G.N*k+j+1]+weight_pr(G.Gx[(G.N+1)*k+j+1],G.C);
+                        Sdir1[G.N*k+j] = 'r';
+                        flag = 1;
+                    }
                 }
             }
-            for (int i = 0; i<G.N;i++){
-                for (int j = 0; j<G.M;j++){
-                    Sdist2[i*G.M+j] = std::numeric_limits<int>::max();
-                    Sdir2[i*G.M+j] = 'x';
-                }
-            }
-            Sdist1[source.y*G.N+source.x] = 0;
-            //disp_s(Sdist1,Sdist2,Sdir1,Sdir2,G.M,G.N);
-            // Then do Bellman-Ford
-            bool flag = 1; // to keep track of if the relaxation step has caused any change to the distances and routes or not
-            while (flag){
-                //if (source.x==0&&source.y==0&&dest.x==3&&dest.y==3){
-                //  disp_s(Sdist1,Sdist2,Sdir1,Sdir2,G.M,G.N);
-                //}
-                flag = 0;
-                // Relaxing Sdir1 (rows)
-                for (int k = cornerl.y; k<cornerh.y+1; k++){
-                    // left to right
-                    for (int j = cornerl.x+1; j<cornerh.x+1; j++){
-                        if (Sdist1[G.N*k+j] > Sdist1[G.N*k+j-1]+weight_pr(G.Gx[(G.N+1)*k+j],G.C)){
-                            Sdist1[G.N*k+j] = Sdist1[G.N*k+j-1]+weight_pr(G.Gx[(G.N+1)*k+j],G.C);
-                            Sdir1[G.N*k+j] = 'l';
-                            flag = 1;
-                        }
-                    }
-                    // right to left
-                    for (int j = cornerh.x-1; j>cornerl.x-1; j--){
-                        if (Sdist1[G.N*k+j] > Sdist1[G.N*k+j+1]+weight_pr(G.Gx[(G.N+1)*k+j+1],G.C)){
-                            Sdist1[G.N*k+j] = Sdist1[G.N*k+j+1]+weight_pr(G.Gx[(G.N+1)*k+j+1],G.C);
-                            Sdir1[G.N*k+j] = 'r';
-                            flag = 1;
-                        }
-                    }
-                }
-                // via sweep
-                for (int k = cornerl.y; k<cornerh.y+1; k++){
-                    for (int j = cornerl.x; j<cornerh.x+1; j++){
-                        if (Sdist1[G.N*k+j] > Sdist2[G.M*j+k]+G.v){
-                            Sdist1[G.N*k+j] = Sdist2[G.M*j+k]+G.v;
-                            Sdir1[G.N*k+j] =  'u';
-                            flag = 1;
-                        }
-                        if (Sdist1[G.N*k+j] + G.v < Sdist2[G.M*j+k]){
-                            Sdist2[G.M*j+k] = Sdist1[G.N*k+j]+G.v;
-                            Sdir2[G.M*j+k] =  'd';
-                            flag = 1;
-                        }
-                    }
-                }
-                // Relaxing Sdir2 (cols)
+            // via sweep
+            for (int k = cornerl.y; k<cornerh.y+1; k++){
                 for (int j = cornerl.x; j<cornerh.x+1; j++){
-                    // south to  north
-                    for (int k = cornerl.y+1; k<cornerh.y+1; k++){
-                        if (Sdist2[G.M*j+k] > Sdist2[G.M*j+k-1]+weight_pr(G.Gy[(G.M+1)*j+k],G.C)){
-                            Sdist2[G.M*j+k] = Sdist2[G.M*j+k-1]+weight_pr(G.Gy[(G.M+1)*j+k],G.C);
-                            Sdir2[G.M*j+k] = 's';
-                            flag = 1;
-                        }
+                    if (Sdist1[G.N*k+j] > Sdist2[G.M*j+k]+G.v){
+                        Sdist1[G.N*k+j] = Sdist2[G.M*j+k]+G.v;
+                        Sdir1[G.N*k+j] =  'u';
+                        flag = 1;
                     }
-                    // right to left
-                    for (int k = cornerh.y-1; k>cornerl.y-1; k--){
-                        if (Sdist2[G.M*j+k] > Sdist2[G.M*j+k+1]+weight_pr(G.Gy[(G.M+1)*j+k+1],G.C)){
-                            Sdist2[G.M*j+k] = Sdist2[G.M*j+k+1]+weight_pr(G.Gy[(G.M+1)*j+k+1],G.C);
-                            Sdir2[G.M*j+k] = 'n';
-                            flag = 1;
-                        }
+                    if (Sdist1[G.N*k+j] + G.v < Sdist2[G.M*j+k]){
+                        Sdist2[G.M*j+k] = Sdist1[G.N*k+j]+G.v;
+                        Sdir2[G.M*j+k] =  'd';
+                        flag = 1;
                     }
                 }
-                // via sweep
-                for (int k = cornerl.y; k<cornerh.y+1; k++){
-                    for (int j = cornerl.x; j<cornerh.x+1; j++){
-                        if (Sdist1[G.N*k+j] > Sdist2[G.M*j+k]+G.v){
-                            Sdist1[G.N*k+j] = Sdist2[G.M*j+k]+G.v;
-                            Sdir1[G.N*k+j] =  'u';
-                            flag = 1;
-                        }
-                        if (Sdist1[G.N*k+j] + G.v < Sdist2[G.M*j+k]){
-                            Sdist2[G.M*j+k] = Sdist1[G.N*k+j]+G.v;
-                            Sdir2[G.M*j+k] =  'd';
-                            flag = 1;
-                        }
+            }
+            // Relaxing Sdir2 (cols)
+            for (int j = cornerl.x; j<cornerh.x+1; j++){
+                // south to  north
+                for (int k = cornerl.y+1; k<cornerh.y+1; k++){
+                    if (Sdist2[G.M*j+k] > Sdist2[G.M*j+k-1]+weight_pr(G.Gy[(G.M+1)*j+k],G.C)){
+                        Sdist2[G.M*j+k] = Sdist2[G.M*j+k-1]+weight_pr(G.Gy[(G.M+1)*j+k],G.C);
+                        Sdir2[G.M*j+k] = 's';
+                        flag = 1;
                     }
                 }
-                //disp_s(Sdist1,Sdist2,Sdir1,Sdir2,G.M,G.N);
+                // right to left
+                for (int k = cornerh.y-1; k>cornerl.y-1; k--){
+                    if (Sdist2[G.M*j+k] > Sdist2[G.M*j+k+1]+weight_pr(G.Gy[(G.M+1)*j+k+1],G.C)){
+                        Sdist2[G.M*j+k] = Sdist2[G.M*j+k+1]+weight_pr(G.Gy[(G.M+1)*j+k+1],G.C);
+                        Sdir2[G.M*j+k] = 'n';
+                        flag = 1;
+                    }
+                }
             }
-            ////std::cout << "Bellmann ford relaxations are completed " << std::endl;
-            
-
-            // Backtrack and store the results
-            // this has to be done completely in serial
-            Point here = dest;
-            int layer = 0;
-            char dir;
-            char diro; // so that dest is not saved in route
-            ////std::cout << "Located at " << here.x << " " << here.y << std::endl;
-            nets[i].route.clear();
-            while (!((here.x == source.x) && (here.y == source.y))){
-                // first check which direction to enter "here" from
-                ////std::cout << "At " << here.x << " " << here.y << std::endl;
-                if (layer){
-                    dir = Sdir2[G.M*here.x+here.y];
+            // via sweep
+            for (int k = cornerl.y; k<cornerh.y+1; k++){
+                for (int j = cornerl.x; j<cornerh.x+1; j++){
+                    if (Sdist1[G.N*k+j] > Sdist2[G.M*j+k]+G.v){
+                        Sdist1[G.N*k+j] = Sdist2[G.M*j+k]+G.v;
+                        Sdir1[G.N*k+j] =  'u';
+                        flag = 1;
+                    }
+                    if (Sdist1[G.N*k+j] + G.v < Sdist2[G.M*j+k]){
+                        Sdist2[G.M*j+k] = Sdist1[G.N*k+j]+G.v;
+                        Sdir2[G.M*j+k] =  'd';
+                        flag = 1;
+                    }
                 }
-                else{
-                    dir = Sdir1[G.N*here.y+here.x];
-                }
-                if ((dir != diro)&&(dir!='d')&&(dir!='u')&&!((here.x == dest.x) && (here.y == dest.y))){
-                    nets[i].route.push_back(here);
-                    //std:: cout << "dir " << dir << std::endl;
-                    //std:: cout << "loc " << here.x << here.y << std::endl;
-                }
-                diro = dir;
-                // now update "here" or "layer"
-                switch(dir){
-                    case 'd':
-                        layer = 0; break;
-                    case 'u':
-                        layer = 1; break;
-                    case 'l':
-                        here.x -= 1; break;
-                    case 'r':
-                        here.x += 1; break;
-                    case 'n':
-                        here.y += 1; break;
-                    case 's':
-                        here.y -= 1; break;
-                    default: break;
-                }
-                
             }
-            std::reverse(nets[i].route.begin(),nets[i].route.end());
-            /*
-            
-            if (1){//source.x==0&&source.y==0&&dest.x==3&&dest.y==3){
-                for (int j = 0; j<nets[i].route.size();j++){
-                    std::cerr << nets[i].route[j].x << " " << nets[i].route[j].y << std::endl;
-                }
-                std::cerr << std::endl;
-            }
-            */
-        } 
-        // update grid graph
-        for (int i=0; i<N; i++){
-            source = {nets[i].x1,nets[i].y1};
-            dest = {nets[i].x2,nets[i].y2};
-            route_wire(G, source,dest,nets[i].route);
+            //disp_s(Sdist1,Sdist2,Sdir1,Sdir2,G.M,G.N);
         }
+        //std::cout << "Bellmann ford relaxations are completed " << std::endl;
+        //disp_s(Sdist1,Sdist2,Sdir1,Sdir2,G.M,G.N);
+
+
+        // Backtrack and store the results
+        // this has to be done completely in serial
+        Point here = dest;
+        int layer = 0;
+        char dir;
+        char diro; // so that dest is not saved in route
+        //std::cout << "Located at " << here.x << " " << here.y << std::endl;
+        nets[i].route.clear();
+        while (!((here.x == source.x) && (here.y == source.y))){
+            // first check which direction to enter "here" from
+            //std::cout << "At " << here.x << " " << here.y << std::endl;
+            if (layer){
+                dir = Sdir2[G.M*here.x+here.y];
+            }
+            else{
+                dir = Sdir1[G.N*here.y+here.x];
+            }
+            if ((dir != diro)&&(dir!='u')&&(dir!='d')&&(dir!='x')&&!((here.x == dest.x) && (here.y == dest.y))){
+                nets[i].route.push_back(here);
+                //std:: cout << "dir " << dir << std::endl;
+                //std:: cout << "loc " << here.x << here.y << std::endl;
+            }
+            diro = dir;
+            // now update "here" or "layer"
+            switch(dir){
+                case 'd':
+                    layer = 0; break;
+                case 'u':
+                    layer = 1; break;
+                case 'l':
+                    here.x -= 1; break;
+                case 'r':
+                    here.x += 1; break;
+                case 'n':
+                    here.y += 1; break;
+                case 's':
+                    here.y -= 1; break;
+                default: break;
+            }
+            
+        }
+        std::reverse(nets[i].route.begin(),nets[i].route.end());
+    } 
+    // update grid graph
+    for (int i=0; i<N; i++){
+        source = {nets[i].x1,nets[i].y1};
+        dest = {nets[i].x2,nets[i].y2};
+        route_wire(G, source,dest,nets[i].route);
     }
     return;
 }
@@ -540,7 +523,7 @@ inline float Batch::weight(float demand, float capacity, float c){
 
 inline float Batch::weight_pr(float demand, float capacity){
     // the return values of this function can be memoised for further speedup
-    return 3*(std::exp(demand/capacity)-1);
+    return 3*(std::exp(demand/(capacity-1))-1);
 }
 
 void Batch::disp_s(std::vector<float> Sdist1,std::vector<float> Sdist2,std::vector<char> Sdir1,std::vector<char> Sdir2,int M,int N){
@@ -598,28 +581,28 @@ void Batch::disp_s(std::vector<float> Sdist1,std::vector<float> Sdist2,std::vect
 }
 
 void Batch::dispG(Grid_Graph G){
-    //std::cout << "G.Gy" <<std::endl ;
+    std::cout << "G.Gy" <<std::endl ;
     for (int i=0; i<G.M; i++){
         for (int j=0; j<G.N; j++){
             if (G.Gy[j*(G.M+1)+i]){
-                //std::cout << G.Gy[j*(G.M+1)+i] << " " ;
+                std::cout << G.Gy[j*(G.M+1)+i] << " " ;
             }
             else{
-                //std::cout << 'y' << " " ;
+                std::cout << 'y' << " " ;
             }
         }
-        //std::cout << std::endl; 
+        std::cout << std::endl; 
     }
-    //std::cout << "G.Gx" <<std::endl ;
+    std::cout << "G.Gx" <<std::endl ;
     for (int i=0; i<G.M; i++){
         for (int j=0; j<G.N; j++){
             if (G.Gy[i*(G.N+1)+j]){
-                //std::cout << G.Gy[i*(G.N+1)+j] << " " ;
+                std::cout << G.Gy[i*(G.N+1)+j] << " " ;
             }
             else{
-                //std::cout << 'y' << " " ;
+                std::cout << 'y' << " " ;
             }
         }
-        //std::cout << std::endl; 
+        std::cout << std::endl; 
     }
 }

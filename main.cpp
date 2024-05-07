@@ -130,13 +130,13 @@ int main(int argc, char *argv[]) {
         std::cerr << "Correct format is ./" << argv[0] << " <input filename> <output filename> <Bounding Box Dimensions> <Number of Iterations for Maze Route> <Number of Threads for Parallelising>\n";
         return 1;
     }
-    else {
+     
     char* infilename = argv[1];
     char* outfilename = argv[2];
     int BOX_MIN_DIM = atoi(argv[3]);
     int MAZE_ROUTE_ITER = atoi(argv[4]);
-    int NUM_THREADS = atoi[5];
-    }
+    int NUM_THREADS = atoi(argv[5]);
+    
 
     // Get the filename from command line argument
 //    char* infilename = argv[1];
@@ -169,10 +169,10 @@ int main(int argc, char *argv[]) {
     std::cerr << "Batches for maze routing " << std::endl;
     disp_batches(Netlist);
     float k = 4;
-    Netlist.maze_schedule(G,k);
+    Netlist.maze_schedule(G,k, BOX_MIN_DIM);
     std::cerr << "Core dumped here " << std::endl;
     double T__ = omp_get_wtime();
-    Netlist.mazer(G,k);
+    Netlist.mazer(G,k, NUM_THREADS, BOX_MIN_DIM, MAZE_ROUTE_ITER);
     double T___ = omp_get_wtime();
     std::cerr << "The final batches are " << std::endl;
     disp_batches(Netlist);

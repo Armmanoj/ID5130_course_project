@@ -21,8 +21,7 @@ public:
     float pattern_route(Grid_Graph G, int k, float T, float p);
 
     // Function to perform maze route
-    void maze_route(Grid_Graph G, float k, float c, std::vector<float>& Sdist1, std::vector<char>& Sdir1,
-                    std::vector<float>& Sdist2, std::vector<char>& Sdir2);
+    void maze_route(Grid_Graph G, float k, float c, std::vector<float>& Sdist1, std::vector<char>& Sdir1, std::vector<float>& Sdist2, std::vector<char>& Sdir2, int NUM_THREADS, int BOX_MIN_DIM);
 
     void save_patterns(std::vector<Point>& L, int k);
     void rip_wire(Grid_Graph G, Point Src, Point Dest, std::vector<Point> path);

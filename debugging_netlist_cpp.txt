@@ -1,0 +1,70 @@
+In file included from /usr/include/c++/11/bits/alloc_traits.h:33,
+                 from /usr/include/c++/11/ext/alloc_traits.h:34,
+                 from /usr/include/c++/11/bits/basic_string.h:40,
+                 from /usr/include/c++/11/string:55,
+                 from /usr/include/c++/11/bits/locale_classes.h:40,
+                 from /usr/include/c++/11/bits/ios_base.h:41,
+                 from /usr/include/c++/11/ios:42,
+                 from /usr/include/c++/11/ostream:38,
+                 from /usr/include/c++/11/iostream:39,
+                 from main.hpp:4,
+                 from netlist.hpp:5,
+                 from netlist.cpp:1:
+/usr/include/c++/11/bits/stl_construct.h: In instantiation of ‘void std::_Construct(_Tp*, _Args&& ...) [with _Tp = Net; _Args = {}]’:
+/usr/include/c++/11/bits/stl_uninitialized.h:579:18:   required from ‘static _ForwardIterator std::__uninitialized_default_n_1<_TrivialValueType>::__uninit_default_n(_ForwardIterator, _Size) [with _ForwardIterator = Net*; _Size = long unsigned int; bool _TrivialValueType = false]’
+/usr/include/c++/11/bits/stl_uninitialized.h:640:20:   required from ‘_ForwardIterator std::__uninitialized_default_n(_ForwardIterator, _Size) [with _ForwardIterator = Net*; _Size = long unsigned int]’
+/usr/include/c++/11/bits/stl_uninitialized.h:704:44:   required from ‘_ForwardIterator std::__uninitialized_default_n_a(_ForwardIterator, _Size, std::allocator<_Tp>&) [with _ForwardIterator = Net*; _Size = long unsigned int; _Tp = Net]’
+/usr/include/c++/11/bits/stl_vector.h:1606:36:   required from ‘void std::vector<_Tp, _Alloc>::_M_default_initialize(std::vector<_Tp, _Alloc>::size_type) [with _Tp = Net; _Alloc = std::allocator<Net>; std::vector<_Tp, _Alloc>::size_type = long unsigned int]’
+/usr/include/c++/11/bits/stl_vector.h:512:9:   required from ‘std::vector<_Tp, _Alloc>::vector(std::vector<_Tp, _Alloc>::size_type, const allocator_type&) [with _Tp = Net; _Alloc = std::allocator<Net>; std::vector<_Tp, _Alloc>::size_type = long unsigned int; std::vector<_Tp, _Alloc>::allocator_type = std::allocator<Net>]’
+netlist.cpp:72:45:   required from here
+/usr/include/c++/11/bits/stl_construct.h:119:7: error: no matching function for call to ‘Net::Net()’
+  119 |       ::new((void*)__p) _Tp(std::forward<_Args>(__args)...);
+      |       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from netlist.cpp:4:
+struct.hpp:14:5: note: candidate: ‘Net::Net(int, int, int, int, size_t)’
+   14 |     Net(int v1, int v2, int v3, int v4, size_t size)
+      |     ^~~
+struct.hpp:14:5: note:   candidate expects 5 arguments, 0 provided
+struct.hpp:11:8: note: candidate: ‘Net::Net(const Net&)’
+   11 | struct Net {
+      |        ^~~
+struct.hpp:11:8: note:   candidate expects 1 argument, 0 provided
+struct.hpp:11:8: note: candidate: ‘Net::Net(Net&&)’
+struct.hpp:11:8: note:   candidate expects 1 argument, 0 provided
+In file included from /usr/include/c++/11/bits/alloc_traits.h:33,
+                 from /usr/include/c++/11/ext/alloc_traits.h:34,
+                 from /usr/include/c++/11/bits/basic_string.h:40,
+                 from /usr/include/c++/11/string:55,
+                 from /usr/include/c++/11/bits/locale_classes.h:40,
+                 from /usr/include/c++/11/bits/ios_base.h:41,
+                 from /usr/include/c++/11/ios:42,
+                 from /usr/include/c++/11/ostream:38,
+                 from /usr/include/c++/11/iostream:39,
+                 from main.hpp:4,
+                 from netlist.hpp:5,
+                 from netlist.cpp:1:
+/usr/include/c++/11/bits/stl_construct.h: In instantiation of ‘void std::_Construct(_Tp*, _Args&& ...) [with _Tp = Batch; _Args = {}]’:
+/usr/include/c++/11/bits/stl_uninitialized.h:579:18:   required from ‘static _ForwardIterator std::__uninitialized_default_n_1<_TrivialValueType>::__uninit_default_n(_ForwardIterator, _Size) [with _ForwardIterator = Batch*; _Size = long unsigned int; bool _TrivialValueType = false]’
+/usr/include/c++/11/bits/stl_uninitialized.h:640:20:   required from ‘_ForwardIterator std::__uninitialized_default_n(_ForwardIterator, _Size) [with _ForwardIterator = Batch*; _Size = long unsigned int]’
+/usr/include/c++/11/bits/stl_uninitialized.h:704:44:   required from ‘_ForwardIterator std::__uninitialized_default_n_a(_ForwardIterator, _Size, std::allocator<_Tp>&) [with _ForwardIterator = Batch*; _Size = long unsigned int; _Tp = Batch]’
+/usr/include/c++/11/bits/vector.tcc:627:35:   required from ‘void std::vector<_Tp, _Alloc>::_M_default_append(std::vector<_Tp, _Alloc>::size_type) [with _Tp = Batch; _Alloc = std::allocator<Batch>; std::vector<_Tp, _Alloc>::size_type = long unsigned int]’
+/usr/include/c++/11/bits/stl_vector.h:940:4:   required from ‘void std::vector<_Tp, _Alloc>::resize(std::vector<_Tp, _Alloc>::size_type) [with _Tp = Batch; _Alloc = std::allocator<Batch>; std::vector<_Tp, _Alloc>::size_type = long unsigned int]’
+netlist.cpp:140:19:   required from here
+/usr/include/c++/11/bits/stl_construct.h:119:7: error: no matching function for call to ‘Batch::Batch()’
+  119 |       ::new((void*)__p) _Tp(std::forward<_Args>(__args)...);
+      |       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from netlist.cpp:3:
+batch.hpp:12:5: note: candidate: ‘Batch::Batch(const std::vector<Net>&, int, int)’
+   12 |     Batch(const std::vector<Net>& netVector, int i, int n);
+      |     ^~~~~
+batch.hpp:12:5: note:   candidate expects 3 arguments, 0 provided
+batch.hpp:7:7: note: candidate: ‘constexpr Batch::Batch(const Batch&)’
+    7 | class Batch {
+      |       ^~~~~
+batch.hpp:7:7: note:   candidate expects 1 argument, 0 provided
+batch.hpp:7:7: note: candidate: ‘constexpr Batch::Batch(Batch&&)’
+batch.hpp:7:7: note:   candidate expects 1 argument, 0 provided
+In file included from netlist.cpp:1:
+netlist.hpp:28:17: warning: inline function ‘bool Netlist::checkRectangleIntersection(const Net&, const Net&)’ used but never defined
+   28 |     inline bool checkRectangleIntersection(const Net& net1, const Net& net2);
+      |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~
