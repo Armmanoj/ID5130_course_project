@@ -126,14 +126,21 @@ int main(int argc, char *argv[]) {
     ReadDataFromFile
     Router
     */
-    if (argc != 3) {
-        std::cerr << "Correct format is ./" << argv[0] << " <input filename> <output filename\n";
+    if (argc != 6) {
+        std::cerr << "Correct format is ./" << argv[0] << " <input filename> <output filename> <Bounding Box Dimensions> <Number of Iterations for Maze Route> <Number of Threads for Parallelising>\n";
         return 1;
+    }
+    else {
+    char* infilename = argv[1];
+    char* outfilename = argv[2];
+    int BOX_MIN_DIM = atoi(argv[3]);
+    int MAZE_ROUTE_ITER = atoi(argv[4]);
+    int NUM_THREADS = atoi[5];
     }
 
     // Get the filename from command line argument
-    char* infilename = argv[1];
-    char* outfilename = argv[2];
+//    char* infilename = argv[1];
+//    char* outfilename = argv[2];
     // read data from file
     int M, N, C, v;
     std::vector<int> x1, y1, x2, y2;
