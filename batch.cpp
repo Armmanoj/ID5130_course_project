@@ -245,7 +245,7 @@ float Batch::survey(Grid_Graph G,Net net,int orientation){
     return cost;
 }
 // Function to perform maze route
-void Batch::maze_route(Grid_Graph G, float k, float c,std::vector<float>& Sdist1,std::vector<char>&  Sdir1,std::vector<float>& Sdist2,std::vector<char>&  Sdir2) {
+void Batch::maze_route(Grid_Graph G, float k, float c,std::vector<float>& Sdist1,std::vector<char>&  Sdir1,std::vector<float>& Sdist2,std::vector<char>&  Sdir2,  int NUM_THREADS, int BOX_MIN_DIM) {
     /*
     Look more carefully at if the below double allocation is really necessary
     */
@@ -260,6 +260,7 @@ void Batch::maze_route(Grid_Graph G, float k, float c,std::vector<float>& Sdist1
     Sdist, Sdir are allocated outside the function
     */ 
     // rip up the full batch
+    
     #pragma omp parallel num_threads(NUM_THREADS) 
     {
         Point source;
@@ -270,7 +271,7 @@ void Batch::maze_route(Grid_Graph G, float k, float c,std::vector<float>& Sdist1
         int height1;
         Point cornerl;
         Point cornerh;
-        #pragma omp for schedule(dynamic,1)
+        #pragma omp for schedule(dynamic,1) 
         for (int i=0; i<N; i++){
             source = {nets[i].x1,nets[i].y1};
             dest = {nets[i].x2,nets[i].y2};
@@ -383,7 +384,7 @@ void Batch::maze_route(Grid_Graph G, float k, float c,std::vector<float>& Sdist1
                 //disp_s(Sdist1,Sdist2,Sdir1,Sdir2,G.M,G.N);
             }
             std::cerr << "Bellmann ford relaxations are completed " << std::endl;
-            
+            nets[i].route.clear();
 
             // Backtrack and store the results
             // this has to be done completely in serial
@@ -394,7 +395,9 @@ void Batch::maze_route(Grid_Graph G, float k, float c,std::vector<float>& Sdist1
             #pragma omp critical
             // This save time as each core has its Sdist, etc in cache
             {
-                Point here = dest;
+                source = {nets[i].x1,nets[i].y1};
+                dest = {nets[i].x2,nets[i].y2};
+                Point  here = dest;
                 //std::cerr << "Dest is " << here.x << " " << dest.y << std::endl;
                 //exit(1);
                 //std::cerr << "Source is " << source.x << " " << source.y << std::endl;
@@ -403,7 +406,7 @@ void Batch::maze_route(Grid_Graph G, float k, float c,std::vector<float>& Sdist1
                 char dir;
                 char diro; // so that dest is not saved in route
                 ////std::cout << "Located at " << here.x << " " << here.y << std::endl;
-                nets[i].route.clear();
+                
                 //std::cerr << "Variables for backtracking are initialized " << std::endl;
                 std::cerr << i << std::endl;
                 while (!((here.x == source.x) && (here.y == source.y))){
@@ -481,6 +484,7 @@ void Batch::maze_route(Grid_Graph G, float k, float c,std::vector<float>& Sdist1
     }
     return;
 }
+
 
 /*
 we need to rip multiple bends

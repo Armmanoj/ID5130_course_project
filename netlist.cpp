@@ -266,4 +266,3 @@ inline bool Netlist::checkRectangleIntersection(const Net& net1, const Net& net2
 
     return xOverlap && yOverlap && !fullyInside;
 }
-

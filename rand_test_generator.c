@@ -7,7 +7,7 @@
 #define MAX_X 50
 #define MAX_Y 50
 #define MIN_DISTANCE 12
-#define NUM_ROUTES 10000
+#define NUM_ROUTES 2000
 #define CAPACITY 10
 #define VIA 2
 

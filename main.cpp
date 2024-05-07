@@ -126,7 +126,7 @@ int main(int argc, char *argv[]) {
     ReadDataFromFile
     Router
     */
-    if (argc != 3){//6) {
+    if (argc != 6) {
         std::cerr << "Correct format is ./" << argv[0] << " <input filename> <output filename> <Bounding Box Dimensions> <Number of Iterations for Maze Route> <Number of Threads for Parallelising>\n";
         return 1;
     }
@@ -174,14 +174,14 @@ int main(int argc, char *argv[]) {
     double T__ = omp_get_wtime();
     Netlist.mazer(G,k, NUM_THREADS, BOX_MIN_DIM, MAZE_ROUTE_ITER);
     double T___ = omp_get_wtime();
-    std::cerr << "The final batches are " << std::endl;
-    disp_batches(Netlist);
-    std::cout << "The final routes are " << std::endl;
-    disp_routes(Netlist);
-    G.boundary_cond();
+    //std::cerr << "The final batches are " << std::endl;
+    //disp_batches(Netlist);
+    //std::cout << "The final routes are " << std::endl;
+    //disp_routes(Netlist);
+    //G.boundary_cond();
     //std::cout << "Final cost is " << cost << std::endl; 
     //std::cout << "Pattern routing time is " << T_-T << std::endl; 
-    std::cerr << "Maze routing takes  " << T___-T__ << " seconds" << std::endl; 
+    std::cerr << "Maze routing takes  " << T___ -T__  << " seconds" << std::endl; 
     // Store the result
     StoreToFile(outfilename, G, Netlist);
     return 0;
@@ -253,13 +253,16 @@ void StoreToFile(const char* filename,Grid_Graph G, Netlist Netlist) {
         file << G.M << " " << G.N << std::endl;
 
         // Write Gx to the file
+        
         for (int i = 0; i < G.M; ++i) {
-            for (int j = 0; j < G.N + 1; ++j) {
+            file << 0 << " ";
+            for (int j = 1; j < G.N ; ++j) {
                 file << G.Gx[i * (G.N + 1) + j];
                 if (j < G.N) {
                     file << " ";
                 }
             }
+            file << 0 << " ";
             file << std::endl;
         }
 
