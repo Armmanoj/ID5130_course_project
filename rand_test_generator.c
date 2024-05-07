@@ -4,12 +4,12 @@
 #include <math.h>
 #include <time.h>
 
-#define MAX_X 10
-#define MAX_Y 10
-#define MIN_DISTANCE 8
-#define NUM_ROUTES 100
-#define CAPACITY 4
-#define VIA 1
+#define MAX_X 50
+#define MAX_Y 50
+#define MIN_DISTANCE 12
+#define NUM_ROUTES 10000
+#define CAPACITY 10
+#define VIA 2
 
 double distance(int x1, int y1, int x2, int y2) {
     return sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));

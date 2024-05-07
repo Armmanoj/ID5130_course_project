@@ -218,13 +218,12 @@ void Netlist::mazer(Grid_Graph G,float k) {
     std::vector<char> Sdir1(G.M * G.N);
     std::vector<float> Sdist2(G.M * G.N);
     std::vector<char> Sdir2(G.M * G.N);
-    Batch batch;
     for (int i=0; i<MAZE_ROUTE_ITER; i++){
         for (int j=0; j<batches.size(); j++) {
-            batch = batches[j];
-            std::cout << "Maze routing a batch " << std::endl;
-            batch.maze_route(G, k, 2, Sdist1, Sdir1, Sdist2, Sdir2);
+            //std::cout << "Maze routing a batch " << std::endl;
+            batches[j].maze_route(G, k, 2, Sdist1, Sdir1, Sdist2, Sdir2);
         }
+        std::cerr << "Iteration " << i << std::endl;
     }
 }
 

@@ -6,7 +6,7 @@
 #include <omp.h>
 
 void readDataFromFile(const char* filename, int* M, int* N, int* C, int* v, std::vector<int>& x1, std::vector<int>& y1, std::vector<int>& x2, std::vector<int>& y2) ;
-void StoreToFile(const char* filename,Grid_Graph G, std::vector<Net>& nets); 
+void StoreToFile(const char* filename,Grid_Graph G, Netlist Netlist); 
 /*
 write a void function named disp_routelist(Netlist Netlist); whose argument is of type class Netlist {
 public:
@@ -142,7 +142,7 @@ int main(int argc, char *argv[]) {
     Grid_Graph G(M,N,C,v);
     std::cout << "Grid graph successfully made" << std::endl;
     Netlist Netlist(G,x1,y1,x2,y2);
-    std::cout << "Netlist successfully made" << std::endl;
+    std::cerr << "Netlist successfully made" << std::endl;
     std::cout << "displaying generated route lists and then netlists" << std::endl;
     disp_routelist(Netlist);
     disp_netlist(Netlist);
@@ -159,23 +159,24 @@ int main(int argc, char *argv[]) {
     //double T_ = omp_get_wtime();
     //std::cout << "Pattern routing successfully performed" << std::endl;
     disp_routes(Netlist);
-    std::cout << "Batches for maze routing " << std::endl;
+    std::cerr << "Batches for maze routing " << std::endl;
     disp_batches(Netlist);
     float k = 4;
     Netlist.maze_schedule(G,k);
+    std::cerr << "Core dumped here " << std::endl;
     double T__ = omp_get_wtime();
     Netlist.mazer(G,k);
     double T___ = omp_get_wtime();
-    std::cout << "The final batches are " << std::endl;
+    std::cerr << "The final batches are " << std::endl;
     disp_batches(Netlist);
     std::cout << "The final routes are " << std::endl;
     disp_routes(Netlist);
     G.boundary_cond();
     //std::cout << "Final cost is " << cost << std::endl; 
     //std::cout << "Pattern routing time is " << T_-T << std::endl; 
-    std::cerr << "Maze routing is " << T___-T__ << std::endl; 
+    std::cerr << "Maze routing takes  " << T___-T__ << " seconds" << std::endl; 
     // Store the result
-    StoreToFile(outfilename, G, Netlist.nets);
+    StoreToFile(outfilename, G, Netlist);
     return 0;
 }
 
@@ -238,7 +239,7 @@ Write a cpp function StoreToFile(a string filename,int M, int N,int* Gx, int* GY
 
 */
 
-void StoreToFile(const char* filename,Grid_Graph G, std::vector<Net>& nets) {
+void StoreToFile(const char* filename,Grid_Graph G, Netlist Netlist) {
     std::ofstream file(filename);
     if (file.is_open()) {
         // Write M and N to the file
@@ -265,18 +266,28 @@ void StoreToFile(const char* filename,Grid_Graph G, std::vector<Net>& nets) {
             }
             file << std::endl;
         }
-
+        std::cerr << "Netlist size is " << Netlist.batches.size() << std::endl;
         // Write net_x and net_y pairs to the file
-        for (size_t i = 0; i < nets.size(); ++i) {
-            file << nets[i].x1 << " " << nets[i].y1 << " ";
-            for (size_t j = 0; j < nets[i].route.size(); ++j) {
-                file << nets[i].route[j].x << " " << nets[i].route[j].y << " ";
+        for (int k=0; k<Netlist.batches.size();k++){
+            std::vector<Net> nets = Netlist.batches[k].nets;
+            std::cout << "k is " << k << std::endl;
+            std::cout << "Batch size is " << Netlist.batches[k].N << std::endl;
+            for (size_t i = 0; i < nets.size(); ++i) {
+                file << nets[i].x1 << " " << nets[i].y1 << " ";
+                for (size_t j = 0; j < nets[i].route.size(); ++j) {
+                    //std::cerr << "Net size is " << nets[i].route.size() << std::endl;
+                    file << nets[i].route[j].x << " " << nets[i].route[j].y << " ";
+                }
+                file << nets[i].x2 << " " << nets[i].y2 << " ";
+                file << std::endl;
             }
-            file << nets[i].x2 << " " << nets[i].y2 << " ";
-            file << std::endl;
+            std::cerr << "k is " << k << std::endl;
         }
+        std::cerr << "Written to file " << std::endl;
         file.close();
+        std::cerr << "Closed file " << std::endl;
     } 
+    
     else {
         std::cerr << "Unable to open file: " << filename << std::endl;
     }

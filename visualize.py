@@ -58,7 +58,7 @@ def plot_paths_on_grid(Grid, paths):
     # Plot the paths on top of the colormap with slight spacing for overlapping lines
     for i, path in enumerate(paths):
         # Add a small offset to the y-values of the path to space out overlapping lines
-        offset = (i-len(paths)//2) * 0.005  # Adjust the offset as needed
+        offset = (i-len(paths)//2) * 0.01  # Adjust the offset as needed
         y_offset = path[1::2] + offset
         plt.plot(path[::2]+offset, y_offset, 'r-o', linewidth=2)
 

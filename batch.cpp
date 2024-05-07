@@ -257,174 +257,188 @@ void Batch::maze_route(Grid_Graph G, float k, float c,std::vector<float>& Sdist1
     Sdist, Sdir are allocated outside the function
     */ 
     // rip up the full batch
-    Point source;
-    Point dest;
-    int centerX1;
-    int centerY1;
-    int width1;
-    int height1;
-    Point cornerl;
-    Point cornerh;
-    for (int i=0; i<N; i++){
-        source = {nets[i].x1,nets[i].y1};
-        dest = {nets[i].x2,nets[i].y2};
-        rip_wire(G, source,dest,nets[i].route);
-    }
-    //std::cout << "ripped up " << std::endl;
-    
-    for (int i=0; i<N; i++){
-        source = {nets[i].x1,nets[i].y1};
-        dest = {nets[i].x2,nets[i].y2};
-        // calculate corners of bounding box
-        centerX1 = (source.x + dest.x) / 2;
-        centerY1 = (source.y + dest.y) / 2;
-        width1 = std::max((int)std::ceil(k * std::abs(source.x- dest.x)),BOX_MIN_DIM);
-        height1 = std::max((int)std::ceil(k * std::abs(source.y - dest.y)),BOX_MIN_DIM);
-        cornerl = {std::max(0,(int)(centerX1 - width1 / 2)),std::max(0,(int)(centerY1 - height1 / 2))};
-        cornerh = {std::min(G.N-1,(int)(centerX1 + width1 / 2)),std::min(G.M-1,(int)(centerY1 + height1 / 2))};
-        //std::cout << "corner l " << cornerl.x << " " << cornerl.y << std::endl;
-        //std::cout << "corner h " << cornerh.x << " " << cornerh.y << std::endl;
-        //initializing Sdists, Sdirs
-        for (int i = 0; i<G.M;i++){
-            for (int j = 0; j<G.N;j++){
-                Sdist1[i*G.N+j] = std::numeric_limits<int>::max();
-                Sdir1[i*G.N+j] = 'x';
-            }
+    #pragma omp parallel num_threads(NUM_THREADS) 
+    {
+        Point source;
+        Point dest;
+        int centerX1;
+        int centerY1;
+        int width1;
+        int height1;
+        Point cornerl;
+        Point cornerh;
+        for (int i=0; i<N; i++){
+            source = {nets[i].x1,nets[i].y1};
+            dest = {nets[i].x2,nets[i].y2};
+            rip_wire(G, source,dest,nets[i].route);
         }
-        for (int i = 0; i<G.N;i++){
-            for (int j = 0; j<G.M;j++){
-                Sdist2[i*G.M+j] = std::numeric_limits<int>::max();
-                Sdir2[i*G.M+j] = 'x';
-            }
-        }
-        Sdist1[source.y*G.N+source.x] = 0;
-        //disp_s(Sdist1,Sdist2,Sdir1,Sdir2,G.M,G.N);
-        // Then do Bellman-Ford
-        bool flag = 1; // to keep track of if the relaxation step has caused any change to the distances and routes or not
-        while (flag){
-            flag = 0;
-            // Relaxing Sdir1 (rows)
-            for (int k = cornerl.y; k<cornerh.y+1; k++){
-                // left to right
-                for (int j = cornerl.x+1; j<cornerh.x+1; j++){
-                    if (Sdist1[G.N*k+j] > Sdist1[G.N*k+j-1]+weight_pr(G.Gx[(G.N+1)*k+j],G.C)){
-                        Sdist1[G.N*k+j] = Sdist1[G.N*k+j-1]+weight_pr(G.Gx[(G.N+1)*k+j],G.C);
-                        Sdir1[G.N*k+j] = 'l';
-                        flag = 1;
-                    }
-                }
-                // right to left
-                for (int j = cornerh.x-1; j>cornerl.x-1; j--){
-                    if (Sdist1[G.N*k+j] > Sdist1[G.N*k+j+1]+weight_pr(G.Gx[(G.N+1)*k+j+1],G.C)){
-                        Sdist1[G.N*k+j] = Sdist1[G.N*k+j+1]+weight_pr(G.Gx[(G.N+1)*k+j+1],G.C);
-                        Sdir1[G.N*k+j] = 'r';
-                        flag = 1;
-                    }
+        //std::cout << "ripped up " << std::endl;
+        
+        for (int i=0; i<N; i++){
+            source = {nets[i].x1,nets[i].y1};
+            dest = {nets[i].x2,nets[i].y2};
+            // calculate corners of bounding box
+            centerX1 = (source.x + dest.x) / 2;
+            centerY1 = (source.y + dest.y) / 2;
+            width1 = std::max((int)std::ceil(k * std::abs(source.x- dest.x)),BOX_MIN_DIM);
+            height1 = std::max((int)std::ceil(k * std::abs(source.y - dest.y)),BOX_MIN_DIM);
+            cornerl = {std::max(0,(int)(centerX1 - width1 / 2)),std::max(0,(int)(centerY1 - height1 / 2))};
+            cornerh = {std::min(G.N-1,(int)(centerX1 + width1 / 2)),std::min(G.M-1,(int)(centerY1 + height1 / 2))};
+            //std::cout << "corner l " << cornerl.x << " " << cornerl.y << std::endl;
+            //std::cerr << "corner h " << cornerh.x << " " << cornerh.y << std::endl;
+            //initializing Sdists, Sdirs
+            for (int i = 0; i<G.M;i++){
+                for (int j = 0; j<G.N;j++){
+                    Sdist1[i*G.N+j] = std::numeric_limits<int>::max();
+                    Sdir1[i*G.N+j] = 'x';
                 }
             }
-            // via sweep
-            for (int k = cornerl.y; k<cornerh.y+1; k++){
-                for (int j = cornerl.x; j<cornerh.x+1; j++){
-                    if (Sdist1[G.N*k+j] > Sdist2[G.M*j+k]+G.v){
-                        Sdist1[G.N*k+j] = Sdist2[G.M*j+k]+G.v;
-                        Sdir1[G.N*k+j] =  'u';
-                        flag = 1;
-                    }
-                    if (Sdist1[G.N*k+j] + G.v < Sdist2[G.M*j+k]){
-                        Sdist2[G.M*j+k] = Sdist1[G.N*k+j]+G.v;
-                        Sdir2[G.M*j+k] =  'd';
-                        flag = 1;
-                    }
+            for (int i = 0; i<G.N;i++){
+                for (int j = 0; j<G.M;j++){
+                    Sdist2[i*G.M+j] = std::numeric_limits<int>::max();
+                    Sdir2[i*G.M+j] = 'x';
                 }
             }
-            // Relaxing Sdir2 (cols)
-            for (int j = cornerl.x; j<cornerh.x+1; j++){
-                // south to  north
-                for (int k = cornerl.y+1; k<cornerh.y+1; k++){
-                    if (Sdist2[G.M*j+k] > Sdist2[G.M*j+k-1]+weight_pr(G.Gy[(G.M+1)*j+k],G.C)){
-                        Sdist2[G.M*j+k] = Sdist2[G.M*j+k-1]+weight_pr(G.Gy[(G.M+1)*j+k],G.C);
-                        Sdir2[G.M*j+k] = 's';
-                        flag = 1;
-                    }
-                }
-                // right to left
-                for (int k = cornerh.y-1; k>cornerl.y-1; k--){
-                    if (Sdist2[G.M*j+k] > Sdist2[G.M*j+k+1]+weight_pr(G.Gy[(G.M+1)*j+k+1],G.C)){
-                        Sdist2[G.M*j+k] = Sdist2[G.M*j+k+1]+weight_pr(G.Gy[(G.M+1)*j+k+1],G.C);
-                        Sdir2[G.M*j+k] = 'n';
-                        flag = 1;
-                    }
-                }
-            }
-            // via sweep
-            for (int k = cornerl.y; k<cornerh.y+1; k++){
-                for (int j = cornerl.x; j<cornerh.x+1; j++){
-                    if (Sdist1[G.N*k+j] > Sdist2[G.M*j+k]+G.v){
-                        Sdist1[G.N*k+j] = Sdist2[G.M*j+k]+G.v;
-                        Sdir1[G.N*k+j] =  'u';
-                        flag = 1;
-                    }
-                    if (Sdist1[G.N*k+j] + G.v < Sdist2[G.M*j+k]){
-                        Sdist2[G.M*j+k] = Sdist1[G.N*k+j]+G.v;
-                        Sdir2[G.M*j+k] =  'd';
-                        flag = 1;
-                    }
-                }
-            }
+            Sdist1[source.y*G.N+source.x] = 0;
             //disp_s(Sdist1,Sdist2,Sdir1,Sdir2,G.M,G.N);
-        }
-        ////std::cout << "Bellmann ford relaxations are completed " << std::endl;
-        //disp_s(Sdist1,Sdist2,Sdir1,Sdir2,G.M,G.N);
-
-
-        // Backtrack and store the results
-        // this has to be done completely in serial
-        Point here = dest;
-        int layer = 0;
-        char dir;
-        char diro; // so that dest is not saved in route
-        ////std::cout << "Located at " << here.x << " " << here.y << std::endl;
-        nets[i].route.clear();
-        while (!((here.x == source.x) && (here.y == source.y))){
-            // first check which direction to enter "here" from
-            ////std::cout << "At " << here.x << " " << here.y << std::endl;
-            if (layer){
-                dir = Sdir2[G.M*here.x+here.y];
+            // Then do Bellman-Ford
+            bool flag = 1; // to keep track of if the relaxation step has caused any change to the distances and routes or not
+            while (flag){
+                //if (source.x==0&&source.y==0&&dest.x==3&&dest.y==3){
+                //  disp_s(Sdist1,Sdist2,Sdir1,Sdir2,G.M,G.N);
+                //}
+                flag = 0;
+                // Relaxing Sdir1 (rows)
+                for (int k = cornerl.y; k<cornerh.y+1; k++){
+                    // left to right
+                    for (int j = cornerl.x+1; j<cornerh.x+1; j++){
+                        if (Sdist1[G.N*k+j] > Sdist1[G.N*k+j-1]+weight_pr(G.Gx[(G.N+1)*k+j],G.C)){
+                            Sdist1[G.N*k+j] = Sdist1[G.N*k+j-1]+weight_pr(G.Gx[(G.N+1)*k+j],G.C);
+                            Sdir1[G.N*k+j] = 'l';
+                            flag = 1;
+                        }
+                    }
+                    // right to left
+                    for (int j = cornerh.x-1; j>cornerl.x-1; j--){
+                        if (Sdist1[G.N*k+j] > Sdist1[G.N*k+j+1]+weight_pr(G.Gx[(G.N+1)*k+j+1],G.C)){
+                            Sdist1[G.N*k+j] = Sdist1[G.N*k+j+1]+weight_pr(G.Gx[(G.N+1)*k+j+1],G.C);
+                            Sdir1[G.N*k+j] = 'r';
+                            flag = 1;
+                        }
+                    }
+                }
+                // via sweep
+                for (int k = cornerl.y; k<cornerh.y+1; k++){
+                    for (int j = cornerl.x; j<cornerh.x+1; j++){
+                        if (Sdist1[G.N*k+j] > Sdist2[G.M*j+k]+G.v){
+                            Sdist1[G.N*k+j] = Sdist2[G.M*j+k]+G.v;
+                            Sdir1[G.N*k+j] =  'u';
+                            flag = 1;
+                        }
+                        if (Sdist1[G.N*k+j] + G.v < Sdist2[G.M*j+k]){
+                            Sdist2[G.M*j+k] = Sdist1[G.N*k+j]+G.v;
+                            Sdir2[G.M*j+k] =  'd';
+                            flag = 1;
+                        }
+                    }
+                }
+                // Relaxing Sdir2 (cols)
+                for (int j = cornerl.x; j<cornerh.x+1; j++){
+                    // south to  north
+                    for (int k = cornerl.y+1; k<cornerh.y+1; k++){
+                        if (Sdist2[G.M*j+k] > Sdist2[G.M*j+k-1]+weight_pr(G.Gy[(G.M+1)*j+k],G.C)){
+                            Sdist2[G.M*j+k] = Sdist2[G.M*j+k-1]+weight_pr(G.Gy[(G.M+1)*j+k],G.C);
+                            Sdir2[G.M*j+k] = 's';
+                            flag = 1;
+                        }
+                    }
+                    // right to left
+                    for (int k = cornerh.y-1; k>cornerl.y-1; k--){
+                        if (Sdist2[G.M*j+k] > Sdist2[G.M*j+k+1]+weight_pr(G.Gy[(G.M+1)*j+k+1],G.C)){
+                            Sdist2[G.M*j+k] = Sdist2[G.M*j+k+1]+weight_pr(G.Gy[(G.M+1)*j+k+1],G.C);
+                            Sdir2[G.M*j+k] = 'n';
+                            flag = 1;
+                        }
+                    }
+                }
+                // via sweep
+                for (int k = cornerl.y; k<cornerh.y+1; k++){
+                    for (int j = cornerl.x; j<cornerh.x+1; j++){
+                        if (Sdist1[G.N*k+j] > Sdist2[G.M*j+k]+G.v){
+                            Sdist1[G.N*k+j] = Sdist2[G.M*j+k]+G.v;
+                            Sdir1[G.N*k+j] =  'u';
+                            flag = 1;
+                        }
+                        if (Sdist1[G.N*k+j] + G.v < Sdist2[G.M*j+k]){
+                            Sdist2[G.M*j+k] = Sdist1[G.N*k+j]+G.v;
+                            Sdir2[G.M*j+k] =  'd';
+                            flag = 1;
+                        }
+                    }
+                }
+                //disp_s(Sdist1,Sdist2,Sdir1,Sdir2,G.M,G.N);
             }
-            else{
-                dir = Sdir1[G.N*here.y+here.x];
-            }
-            if ((dir != diro)&&(dir!='u')&&(dir!='d')&&(dir!='x')&&!((here.x == dest.x) && (here.y == dest.y))){
-                nets[i].route.push_back(here);
-                //std:: cout << "dir " << dir << std::endl;
-                //std:: cout << "loc " << here.x << here.y << std::endl;
-            }
-            diro = dir;
-            // now update "here" or "layer"
-            switch(dir){
-                case 'd':
-                    layer = 0; break;
-                case 'u':
-                    layer = 1; break;
-                case 'l':
-                    here.x -= 1; break;
-                case 'r':
-                    here.x += 1; break;
-                case 'n':
-                    here.y += 1; break;
-                case 's':
-                    here.y -= 1; break;
-                default: break;
-            }
+            ////std::cout << "Bellmann ford relaxations are completed " << std::endl;
             
+
+            // Backtrack and store the results
+            // this has to be done completely in serial
+            Point here = dest;
+            int layer = 0;
+            char dir;
+            char diro; // so that dest is not saved in route
+            ////std::cout << "Located at " << here.x << " " << here.y << std::endl;
+            nets[i].route.clear();
+            while (!((here.x == source.x) && (here.y == source.y))){
+                // first check which direction to enter "here" from
+                ////std::cout << "At " << here.x << " " << here.y << std::endl;
+                if (layer){
+                    dir = Sdir2[G.M*here.x+here.y];
+                }
+                else{
+                    dir = Sdir1[G.N*here.y+here.x];
+                }
+                if ((dir != diro)&&(dir!='d')&&(dir!='u')&&!((here.x == dest.x) && (here.y == dest.y))){
+                    nets[i].route.push_back(here);
+                    //std:: cout << "dir " << dir << std::endl;
+                    //std:: cout << "loc " << here.x << here.y << std::endl;
+                }
+                diro = dir;
+                // now update "here" or "layer"
+                switch(dir){
+                    case 'd':
+                        layer = 0; break;
+                    case 'u':
+                        layer = 1; break;
+                    case 'l':
+                        here.x -= 1; break;
+                    case 'r':
+                        here.x += 1; break;
+                    case 'n':
+                        here.y += 1; break;
+                    case 's':
+                        here.y -= 1; break;
+                    default: break;
+                }
+                
+            }
+            std::reverse(nets[i].route.begin(),nets[i].route.end());
+            /*
+            
+            if (1){//source.x==0&&source.y==0&&dest.x==3&&dest.y==3){
+                for (int j = 0; j<nets[i].route.size();j++){
+                    std::cerr << nets[i].route[j].x << " " << nets[i].route[j].y << std::endl;
+                }
+                std::cerr << std::endl;
+            }
+            */
+        } 
+        // update grid graph
+        for (int i=0; i<N; i++){
+            source = {nets[i].x1,nets[i].y1};
+            dest = {nets[i].x2,nets[i].y2};
+            route_wire(G, source,dest,nets[i].route);
         }
-        std::reverse(nets[i].route.begin(),nets[i].route.end());
-    } 
-    // update grid graph
-    for (int i=0; i<N; i++){
-        source = {nets[i].x1,nets[i].y1};
-        dest = {nets[i].x2,nets[i].y2};
-        route_wire(G, source,dest,nets[i].route);
     }
     return;
 }
@@ -527,56 +541,56 @@ inline float Batch::weight_pr(float demand, float capacity){
 }
 
 void Batch::disp_s(std::vector<float> Sdist1,std::vector<float> Sdist2,std::vector<char> Sdir1,std::vector<char> Sdir2,int M,int N){
-    //std::cout << "Sdir1" << std::endl ;
+    std::cout << "Sdir1" << std::endl ;
     for (int i=0; i<M; i++){
         for (int j=0; j<N; j++){
             if (Sdir1[i*M+j]){
-                //std::cout << Sdir1[i*M+j] << " " ;
+                std::cout << Sdir1[i*M+j] << " " ;
             }
             else{
-                //std::cout << 'y' << " " ;
+                std::cout << 'y' << " " ;
             }
         }
-        //std::cout << std::endl; 
+        std::cout << std::endl; 
     }
-    //std::cout << std::endl;
-    //std::cout << "Sdir2" << std::endl ;
+    std::cout << std::endl;
+    std::cout << "Sdir2" << std::endl ;
     for (int i=0; i<M; i++){
         for (int j=0; j<N; j++){
             if (Sdir2[j*N+i]){
-                //std::cout << Sdir2[j*N+i] << " " ;
+                std::cout << Sdir2[j*N+i] << " " ;
             }
             else{
-                //std::cout << 'y' << " " ;
+                std::cout << 'y' << " " ;
             }
         }
-        //std::cout << std::endl; 
+        std::cout << std::endl; 
     }
-    //std::cout << std::endl; 
-    //std::cout << "Sdist1" << std::endl ;
+    std::cout << std::endl; 
+    std::cout << "Sdist1" << std::endl ;
     for (int i=0; i<M; i++){
         for (int j=0; j<N; j++){
             if (Sdist1[i*M+j]){
-                //std::cout << Sdist1[i*M+j] << " " ;
+                std::cout << Sdist1[i*M+j] << " " ;
             }
             else{
-                //std::cout << 'y' << " " ;
+                std::cout << 'y' << " " ;
             }
         }
-        //std::cout << std::endl; 
+        std::cout << std::endl; 
     }
-    //std::cout << std::endl;
-    //std::cout << "Sdist2" << std::endl ;
+    std::cout << std::endl;
+    std::cout << "Sdist2" << std::endl ;
     for (int i=0; i<M; i++){
         for (int j=0; j<N; j++){
             if (Sdist2[j*N+i]){
-                //std::cout << Sdist2[j*N+i] << " " ;
+                std::cout << Sdist2[j*N+i] << " " ;
             }
             else{
-                //std::cout << 'y' << " " ;
+                std::cout << 'y' << " " ;
             }
         }
-        //std::cout << std::endl; 
+        std::cout << std::endl; 
     }
 }
 
