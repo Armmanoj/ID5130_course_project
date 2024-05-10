@@ -147,30 +147,30 @@ int main(int argc, char *argv[]) {
     readDataFromFile(infilename, &M, &N, &C, &v, x1, y1, x2, y2);
     // create the return data structures, Gx, Gy are dynamically allocated with pointers due to large size, and as it will be passed to GPU
     Grid_Graph G(M,N,C,v);
-    std::cout << "Grid graph successfully made" << std::endl;
-    Netlist Netlist(G,x1,y1,x2,y2);
+    //std::cout << "Grid graph successfully made" << std::endl;
+    Netlist Netlist(NUM_THREADS,G,x1,y1,x2,y2);
     std::cerr << "Netlist successfully made" << std::endl;
-    std::cout << "displaying generated route lists and then netlists" << std::endl;
+    //std::cout << "displaying generated route lists and then netlists" << std::endl;
     disp_routelist(Netlist);
     disp_netlist(Netlist);
-    std::cout << std::endl;
+    //std::cout << std::endl;
 
 
     //Do the routing
     //float cost;
-    //double T = omp_get_wtime();
+    double T = omp_get_wtime();
     //Netlist.pattern_schedule();
-    //std::cout << "Pattern routing successfully scheduled" << std::endl;
+    std::cout << "Pattern routing successfully scheduled" << std::endl;
 
     //cost = Netlist.SA_patternroute(G);
     //double T_ = omp_get_wtime();
-    //std::cout << "Pattern routing successfully performed" << std::endl;
+    std::cerr << "Pattern routing successfully performed" << std::endl;
     disp_routes(Netlist);
     std::cerr << "Batches for maze routing " << std::endl;
     disp_batches(Netlist);
     float k = 4;
     Netlist.maze_schedule(G,k, BOX_MIN_DIM);
-    std::cerr << "Core dumped here " << std::endl;
+    std::cerr << "Maze is scheduled " << std::endl;
     double T__ = omp_get_wtime();
     Netlist.mazer(G,k, NUM_THREADS, BOX_MIN_DIM, MAZE_ROUTE_ITER);
     double T___ = omp_get_wtime();
@@ -184,6 +184,7 @@ int main(int argc, char *argv[]) {
     std::cerr << "Maze routing takes  " << T___ -T__  << " seconds" << std::endl; 
     // Store the result
     StoreToFile(outfilename, G, Netlist);
+    std:: cerr << "succesfully stored to file " << std::endl;
     return 0;
 }
 
@@ -267,14 +268,14 @@ void StoreToFile(const char* filename,Grid_Graph G, Netlist Netlist) {
         }
 
         // Write Gy to the file
-        for (int j = 0; j < G.N; ++j) {
+        /*for (int j = 0; j < G.N; ++j) {
             file << 0;
             if (j < G.N - 1) {
                 file << " ";
             }
-        }
-        file << std::endl;
-        for (int i = 1; i < G.M ; ++i) {
+        }*/
+        //file << std::endl;
+        for (int i = 0; i < G.M ; ++i) {
             for (int j = 0; j < G.N; ++j) {
                 file << G.Gy[i * (G.N+1) + j];
                 if (j < G.N - 1) {
@@ -290,12 +291,12 @@ void StoreToFile(const char* filename,Grid_Graph G, Netlist Netlist) {
             }
         }
         file << std::endl;
-        std::cerr << "Netlist size is " << Netlist.batches.size() << std::endl;
+        //std::cerr << "Netlist size is " << Netlist.batches.size() << std::endl;
         // Write net_x and net_y pairs to the file
         for (int k=0; k<Netlist.batches.size();k++){
             std::vector<Net> nets = Netlist.batches[k].nets;
-            std::cout << "k is " << k << std::endl;
-            std::cout << "Batch size is " << Netlist.batches[k].N << std::endl;
+            //std::cout << "k is " << k << std::endl;
+            //std::cout << "Batch size is " << Netlist.batches[k].N << std::endl;
             for (size_t i = 0; i < nets.size(); ++i) {
                 file << nets[i].x1 << " " << nets[i].y1 << " ";
                 for (size_t j = 0; j < nets[i].route.size(); ++j) {
@@ -305,11 +306,11 @@ void StoreToFile(const char* filename,Grid_Graph G, Netlist Netlist) {
                 file << nets[i].x2 << " " << nets[i].y2 << " ";
                 file << std::endl;
             }
-            std::cerr << "k is " << k << std::endl;
+            //std::cerr << "k is " << k << std::endl;
         }
-        std::cerr << "Written to file " << std::endl;
+        //std::cerr << "Written to file " << std::endl;
         file.close();
-        std::cerr << "Closed file " << std::endl;
+        //std::cerr << "Closed file " << std::endl;
     } 
     
     else {

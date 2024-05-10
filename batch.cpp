@@ -13,6 +13,7 @@ extern int BOX_MIN_DIM;
 Batch::Batch(std::vector<Net> netVector, int i, int n) : N(n) {
     // Store elements from netVector starting from index i up to index i+n into a vector named nets
     for (int j = i; j < i + n && j < netVector.size(); ++j) {
+
         nets.push_back(netVector[j]);
     }
 }
@@ -245,7 +246,7 @@ float Batch::survey(Grid_Graph G,Net net,int orientation){
     return cost;
 }
 // Function to perform maze route
-void Batch::maze_route(Grid_Graph G, float k, float c,std::vector<float>& Sdist1,std::vector<char>&  Sdir1,std::vector<float>& Sdist2,std::vector<char>&  Sdir2,  int NUM_THREADS, int BOX_MIN_DIM) {
+void Batch::maze_route(Grid_Graph G, float k, float c,std::vector<float>& Sdist1,std::vector<char>&  Sdir1,std::vector<float>& Sdist2,std::vector<char>&  Sdir2, int NUM_THREADS, int BOX_MIN_DIM) {
     /*
     Look more carefully at if the below double allocation is really necessary
     */
@@ -260,8 +261,7 @@ void Batch::maze_route(Grid_Graph G, float k, float c,std::vector<float>& Sdist1
     Sdist, Sdir are allocated outside the function
     */ 
     // rip up the full batch
-    
-    #pragma omp parallel num_threads(NUM_THREADS) 
+    if (nets.size()<999999999999)
     {
         Point source;
         Point dest;
@@ -271,14 +271,30 @@ void Batch::maze_route(Grid_Graph G, float k, float c,std::vector<float>& Sdist1
         int height1;
         Point cornerl;
         Point cornerh;
-        #pragma omp for schedule(dynamic,1) 
+
+        //The following variables are created to benchmark timings in each #pragma
+        double t_start, t_end;
+        int Thread_num = omp_get_thread_num();
+        int size = omp_get_num_threads();
+
+        t_start = omp_get_wtime();
+        #pragma omp for
+        //schedule(dynamic,1)
+        
         for (int i=0; i<N; i++){
             source = {nets[i].x1,nets[i].y1};
             dest = {nets[i].x2,nets[i].y2};
             rip_wire(G, source,dest,nets[i].route);
-        }
-        std::cerr << "ripped up " << std::endl;
-        #pragma omp for schedule(dynamic,1)
+            }
+    
+        t_end = omp_get_wtime();
+
+        #pragma omp critical
+        std::cerr << "Time taken to rip nets " << t_end - t_start << "seconds by thread number " << Thread_num << std::endl;
+
+        //std::cerr << "ripped up " << std::endl;
+        t_start = omp_get_wtime();
+        #pragma omp for //schedule(dynamic,1)
         for (int i=0; i<N; i++){
             source = {nets[i].x1,nets[i].y1};
             dest = {nets[i].x2,nets[i].y2};
@@ -290,16 +306,16 @@ void Batch::maze_route(Grid_Graph G, float k, float c,std::vector<float>& Sdist1
             cornerl = {std::max(0,(int)(centerX1 - width1 / 2)),std::max(0,(int)(centerY1 - height1 / 2))};
             cornerh = {std::min(G.N-1,(int)(centerX1 + width1 / 2)),std::min(G.M-1,(int)(centerY1 + height1 / 2))};
             //std::cout << "corner l " << cornerl.x << " " << cornerl.y << std::endl;
-            std::cerr << "corner h " << cornerh.x << " " << cornerh.y << std::endl;
+            //std::cerr << "cornerh " << cornerh.x << " " << cornerh.y << std::endl;
             //initializing Sdists, Sdirs
-            for (int i = 0; i<G.M;i++){
-                for (int j = 0; j<G.N;j++){
+            for (int i = cornerl.y; i<cornerh.y+1;i++){
+                for (int j = cornerl.x; j<cornerh.x+1;j++){
                     Sdist1[i*G.N+j] = std::numeric_limits<int>::max();
                     Sdir1[i*G.N+j] = 'x';
                 }
             }
-            for (int i = 0; i<G.N;i++){
-                for (int j = 0; j<G.M;j++){
+            for (int i = cornerl.x; i<cornerh.x+1;i++){
+                for (int j = cornerl.y; j<cornerh.y+1;j++){
                     Sdist2[i*G.M+j] = std::numeric_limits<int>::max();
                     Sdir2[i*G.M+j] = 'x';
                 }
@@ -382,44 +398,56 @@ void Batch::maze_route(Grid_Graph G, float k, float c,std::vector<float>& Sdist1
                     }
                 }
                 //disp_s(Sdist1,Sdist2,Sdir1,Sdir2,G.M,G.N);
+                //std::cout << "i " << i << std::endl;
+                //std::cout << "i " << i << std::endl;
+                //std::cout << "i " << i << std::endl;
+                //std::cout << "i " << i << std::endl;
+                //std::cout << "i " << i << std::endl;
             }
-            std::cerr << "Bellmann ford relaxations are completed " << std::endl;
-            nets[i].route.clear();
+            //std::cerr << "Bellmann ford relaxations are completed " << std::endl;
+            
 
             // Backtrack and store the results
             // this has to be done completely in serial
         }
-        
-        #pragma omp for 
+        t_end = omp_get_wtime();
+
+        #pragma omp critical
+        std::cerr << "Time taken to do Bellmann ford relaxations " << t_end - t_start << "seconds by thread number " << Thread_num << std::endl;
+
+        t_start = omp_get_wtime();
+        #pragma omp single
+        {
+        double t_start_single = omp_get_wtime();
         for(int i=0; i<N;i++){
-            #pragma omp critical
-            // This save time as each core has its Sdist, etc in cache
-            {
-                source = {nets[i].x1,nets[i].y1};
-                dest = {nets[i].x2,nets[i].y2};
-                Point  here = dest;
-                //std::cerr << "Dest is " << here.x << " " << dest.y << std::endl;
+            //#pragma omp single
+                // This save time as each core has its Sdist, etc in cache
+                Point source = {nets[i].x1,nets[i].y1};
+                Point dest = {nets[i].x2,nets[i].y2};
+                Point here = dest;
+                //std::cerr << "Dest is " << dest.x << " " << dest.y << std::endl;
                 //exit(1);
                 //std::cerr << "Source is " << source.x << " " << source.y << std::endl;
                 //exit(1);
                 int layer = 0;
-                char dir;
-                char diro; // so that dest is not saved in route
-                ////std::cout << "Located at " << here.x << " " << here.y << std::endl;
-                
+                char dir = 'x';
+                char diro = Sdir1[G.N*here.y+here.x]; // so that dest is not saved in route
+                //std::cout << "Located at " << here.x << " " << here.y << std::endl;
+                nets[i].route.clear();
                 //std::cerr << "Variables for backtracking are initialized " << std::endl;
-                std::cerr << i << std::endl;
+                //std::cerr << i << std::endl;
+                int k = 0;
                 while (!((here.x == source.x) && (here.y == source.y))){
-                    //std::cerr << "here " << here.x << " " << source.x << " " << here.y << " " << source.y << std::endl;
                     // first check which direction to enter "here" from
-                    ////std::cout << "At " << here.x << " " << here.y << std::endl;
+                    //std::cout << "At " << here.x << " " << here.y << std::endl;
+                    //std::cerr << "Source is " << source.x << " " << source.y << std::endl;
                     if (layer){
                         //std::cerr << "Reached a layer = 1 " << std::endl;
                         dir = Sdir2[G.M*here.x+here.y];
                         //std::cerr << "Crossed a layer = 1 " << std::endl;
                     }
                     else{
-                        //std::cerr << "Reached a layer = 0 " << std::endl;
+                        ///std::cerr << "Reached a layer = 0 " << std::endl;
                         dir = Sdir1[G.N*here.y+here.x];
                         //std::cerr << "Crossed a layer = 0 " << std::endl;
                     }
@@ -431,13 +459,17 @@ void Batch::maze_route(Grid_Graph G, float k, float c,std::vector<float>& Sdist1
                         //std:: cout << "dir " << dir << std::endl;
                         //std:: cout << "loc " << here.x << here.y << std::endl;
                     }
+                    //std::cerr << "dir is " << dir << std::endl;
                     diro = dir;
-
-                 ///   std::cerr << "Dest is " << here.x << " " << dest.y << std::endl;
+                    if (dir=='x'){
+                        k++;
+                    }
+                    else{k=0;}
+                ///   std::cerr << "Dest is " << here.x << " " << dest.y << std::endl;
                 //exit(1);
                 //std::cerr << "Source is " << source.x << " " << source.y << std::endl;
-               // exit(1);
-                    // now update "here" or "layer"
+                // exit(1);
+                // now update "here" or "layer"
                     switch(dir){
                         case 'd':
                             layer = 0; break;
@@ -453,19 +485,39 @@ void Batch::maze_route(Grid_Graph G, float k, float c,std::vector<float>& Sdist1
                             here.y -= 1; break;
                         default: break;
                     }
-                  //  std::cerr << "Here is " << here.x << std::endl;
-                 //   std::cerr << "Dest is " << here.x << " " << dest.y << std::endl;
+                //   std::cerr << "Dest is " << here.x << " " << dest.y << std::endl;
                 //exit(1);
                 //std::cerr << "Source is " << source.x << " " << source.y << std::endl;
                 //exit(1);
-                    //exit(1);
+                    
+                    if (k==5){
+                        //std:: cerr << "source " << source.x << " " << source.y << std::endl;
+                        //std:: cerr << "dest " << dest.x << " " << dest.y << std::endl;
+                        //std:: cerr << "at " << here.x << " " << here.y << " " << layer << std::endl;
+                        //std:: cerr << " i " << i << std::endl;
+                        //disp_s(Sdist1,Sdist2,Sdir1,Sdir2,G.M,G.N);
+                        //exit(1);
+                    }
                 }
+            
+            //exit(1);
             }
-
+        
         }
-        #pragma omp for schedule(dynamic,1)
+
+        double t_end_single = omp_get_wtime();
+        std::cerr << "Time taken to backtrack under #pragma omp single " << t_end_single - t_start_single << "seconds by thread number " << Thread_num << std::endl;
+        #pragma omp barrier
+        t_end = omp_get_wtime();
+        #pragma omp critical
+        std::cerr << "Time taken to backtrack (very imp) " << t_end - t_start << "seconds by thread number " << Thread_num << std::endl;
+
+        t_start = omp_get_wtime();
+        #pragma omp for //schedule(dynamic,1)
         for(int i=0;i<N; i++){
             std::reverse(nets[i].route.begin(),nets[i].route.end());
+
+
             //std::cerr << "Reversed nets " << std::endl;
             /*
             
@@ -476,13 +528,20 @@ void Batch::maze_route(Grid_Graph G, float k, float c,std::vector<float>& Sdist1
                 std::cerr << std::endl;
             }
             */
+            t_end = omp_get_wtime();
+            std::cerr << "Time taken to reverse " << t_end - t_start << "seconds by thread number " << Thread_num << std::endl;
+             t_start = omp_get_wtime();
         // update grid graph
-            source = {nets[i].x1,nets[i].y1};
-            dest = {nets[i].x2,nets[i].y2};
+            Point source = {nets[i].x1,nets[i].y1};
+            Point dest = {nets[i].x2,nets[i].y2};
             route_wire(G, source,dest,nets[i].route);
         }
+        t_end = omp_get_wtime();
+        #pragma omp critical
+        std::cerr << "Time taken to reroute " << t_end - t_start << "seconds by thread number " << Thread_num << std::endl;
+
     }
-    return;
+
 }
 
 

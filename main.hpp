@@ -13,6 +13,9 @@
 #include <ctime>
 #include <algorithm>
 #include <random>
+#include <omp.h>
+
+#define ROUTE_MEM_ESTIMATE 10
 //#define BOX_MIN_DIM 9 // determines the minimum width or length of bounding box, can be 32 say
 //#define MAZE_ROUTE_ITER 1
 //#define NUM_THREADS 4

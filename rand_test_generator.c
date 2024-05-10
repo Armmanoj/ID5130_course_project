@@ -4,10 +4,10 @@
 #include <math.h>
 #include <time.h>
 
-#define MAX_X 50
-#define MAX_Y 50
-#define MIN_DISTANCE 12
-#define NUM_ROUTES 2000
+#define MAX_X 300
+#define MAX_Y 300
+#define MAX_DISTANCE 15
+#define NUM_ROUTES 7500
 #define CAPACITY 10
 #define VIA 2
 
@@ -46,7 +46,7 @@ int main(int argc, char* argv[]) {
             do {
                 x2 = rand() % (MAX_X + 1);
                 y2 = rand() % (MAX_Y + 1);
-            } while (distance(x1, y1, x2, y2) > MIN_DISTANCE && ((x1 != 0) || (x2 != 0) || (y1 != 0) || (y2 != 0)));
+            } while ((distance(x1, y1, x2, y2) > MAX_DISTANCE)||(distance(x1, y1, x2, y2) < 1));// && ((x1 != 0) || (x2 != 0) || (y1 != 0) || (y2 != 0)))
 
             fprintf(file, "%d %d %d %d\n", x1, y1, x2, y2);
         }
