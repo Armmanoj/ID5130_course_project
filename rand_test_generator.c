@@ -4,12 +4,12 @@
 #include <math.h>
 #include <time.h>
 
-#define MAX_X 300
-#define MAX_Y 300
-#define MAX_DISTANCE 15
-#define NUM_ROUTES 7500
-#define CAPACITY 10
-#define VIA 2
+#define MAX_X 100
+#define MAX_Y 100
+#define MAX_DISTANCE 5
+#define NUM_ROUTES 12000
+#define CAPACITY 6
+#define VIA 7
 
 double distance(int x1, int y1, int x2, int y2) {
     return sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
@@ -47,6 +47,9 @@ int main(int argc, char* argv[]) {
                 x2 = rand() % (MAX_X + 1);
                 y2 = rand() % (MAX_Y + 1);
             } while ((distance(x1, y1, x2, y2) > MAX_DISTANCE)||(distance(x1, y1, x2, y2) < 1));// && ((x1 != 0) || (x2 != 0) || (y1 != 0) || (y2 != 0)))
+
+	    if(i%100 == 0) 
+		    printf("%d Iterations are done", i);
 
             fprintf(file, "%d %d %d %d\n", x1, y1, x2, y2);
         }

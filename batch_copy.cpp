@@ -294,7 +294,7 @@ void Batch::maze_route(Grid_Graph G, float k, float c,std::vector<float>& Sdist1
 
         //std::cerr << "ripped up " << std::endl;
         t_start = omp_get_wtime();
-        #pragma omp for //schedule(dynamic,1)
+        //#pragma omp for //schedule(dynamic,1)
         for (int i=0; i<N; i++){
             source = {nets[i].x1,nets[i].y1};
             dest = {nets[i].x2,nets[i].y2};
@@ -308,12 +308,14 @@ void Batch::maze_route(Grid_Graph G, float k, float c,std::vector<float>& Sdist1
             //std::cout << "corner l " << cornerl.x << " " << cornerl.y << std::endl;
             //std::cerr << "cornerh " << cornerh.x << " " << cornerh.y << std::endl;
             //initializing Sdists, Sdirs
+            #pragma omp for collapse(2)
             for (int i = cornerl.y; i<cornerh.y+1;i++){
                 for (int j = cornerl.x; j<cornerh.x+1;j++){
                     Sdist1[i*G.N+j] = std::numeric_limits<int>::max();
                     Sdir1[i*G.N+j] = 'x';
                 }
             }
+            #pragma omp for collapse(2)
             for (int i = cornerl.x; i<cornerh.x+1;i++){
                 for (int j = cornerl.y; j<cornerh.y+1;j++){
                     Sdist2[i*G.M+j] = std::numeric_limits<int>::max();
@@ -330,6 +332,7 @@ void Batch::maze_route(Grid_Graph G, float k, float c,std::vector<float>& Sdist1
                 //}
                 flag = 0;
                 // Relaxing Sdir1 (rows)
+                #pragma omp for
                 for (int k = cornerl.y; k<cornerh.y+1; k++){
                     // left to right
                     for (int j = cornerl.x+1; j<cornerh.x+1; j++){
@@ -364,6 +367,7 @@ void Batch::maze_route(Grid_Graph G, float k, float c,std::vector<float>& Sdist1
                     }
                 }
                 // Relaxing Sdir2 (cols)
+                #pragma omp for
                 for (int j = cornerl.x; j<cornerh.x+1; j++){
                     // south to  north
                     for (int k = cornerl.y+1; k<cornerh.y+1; k++){
@@ -383,6 +387,7 @@ void Batch::maze_route(Grid_Graph G, float k, float c,std::vector<float>& Sdist1
                     }
                 }
                 // via sweep
+                #pragma omp for
                 for (int k = cornerl.y; k<cornerh.y+1; k++){
                     for (int j = cornerl.x; j<cornerh.x+1; j++){
                         if (Sdist1[G.N*k+j] > Sdist2[G.M*j+k]+G.v){

@@ -1,6 +1,7 @@
 #ifndef BATCH_HPP
 #define BATCH_HPP
 
+
 #include "main.hpp"
 
 struct Net;
