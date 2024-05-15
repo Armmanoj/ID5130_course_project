@@ -11,15 +11,15 @@ generate:
 	./rand_test_generator.o
 
 run_serial:
-	./Working_code.o sample_test.txt sampul.txt 15 1 1 1> cout_serial.txt 2> cerr_serial.txt
+	./Working_code.o sample_test.txt sampul.txt 15 1 1 2> cerr_serial.txt 1> cout_serial.txt 
 
 run_parallel:
-	./Working_code.o sample_test.txt sampul.txt 15 1 6 1> cout.txt 2> cerr.txt
+	./Working_code.o sample_test.txt sampul.txt 15 1 6 2> cerr.txt 1> cout.txt 
 
-run:
+ID5run:
 	
-	./Working_code.o sample_test.txt sampul.txt 15 1 1 1> cout_serial.txt 2> cerr_serial.txt
-	./Working_code.o sample_test.txt sampul.txt 15 1 6 1> cout.txt 2> cerr.txt
+	./Working_code.o sample_test.txt sampul.txt 15 1 1 #1> cout_serial.txt 2> cerr_serial.txt
+	./Working_code.o sample_test.txt sampul.txt 15 1 6 #1> cout.txt 2> cerr.txt
 
 default:
 	rm -f cout_serial.txt cout.txt cerr.txt cerr_serial.txt

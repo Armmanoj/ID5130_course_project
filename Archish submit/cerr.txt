@@ -1,0 +1,3 @@
+routing time is 6.22951
+Maze routing takes  0.0273727 seconds
+succesfully stored to file 

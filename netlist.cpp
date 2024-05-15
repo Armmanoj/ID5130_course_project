@@ -17,16 +17,16 @@ extern int NUM_THREADS;
 Netlist::Netlist(int NUM_THREADS,Grid_Graph G, const std::vector<int>& v1, const std::vector<int>& v2, const std::vector<int>& v3, const std::vector<int>& v4) {
     
     int N = v1.size();
-    //std::cerr << "here " <<std::endl;
+    ////std::cerr << "here " <<std::endl;
     nets.resize(N);
     for (auto& net : nets) {
         net.route.reserve(ROUTE_MEM_ESTIMATE); // Initialize route vector with capacity ROUTE_MEM_ESTIMATE, so as to minimize later time wasted in alloccations
     }
-    //std::cerr << "here " << nets.size() <<std::endl;
-    //std::cerr << "here " <<std::endl;
+    ////std::cerr << "here " << nets.size() <<std::endl;
+    ////std::cerr << "here " <<std::endl;
     //#pragma omp parallel for num_threads(NUM_THREADS)
     for (int i = 0; i < N; ++i) {
-        //std::cerr << "here " <<std::endl;
+        ////std::cerr << "here " <<std::endl;
         Point point = {v1[i], v4[i]};
         for (int y = v2[i]; y <= point.y; y++) {
             G.Gy[v1[i] * (G.M + 1) + y] += 1;
@@ -40,16 +40,16 @@ Netlist::Netlist(int NUM_THREADS,Grid_Graph G, const std::vector<int>& v1, const
         for (int x = v3[i]; x < point.x; x++) {
             G.Gx[v4[i] * (G.N + 1) + x] += 1;
         }
-       // std::cerr << "here n " <<std::endl;
+       // //std::cerr << "here n " <<std::endl;
         nets[i].x1 = v1[i];
-        //std::cerr << "here f" <<std::endl;
+        ////std::cerr << "here f" <<std::endl;
         nets[i].y1 = v2[i];
-        //std::cerr << "here b" <<std::endl;
+        ////std::cerr << "here b" <<std::endl;
         nets[i].x2 = v3[i];
         nets[i].y2 = v4[i];
-        //std::cerr << "here m" <<std::endl;
+        ////std::cerr << "here m" <<std::endl;
         if (!(((point.x==nets[i].x1)&&(point.y==nets[i].y1))||((point.x==nets[i].x2)&&(point.y==nets[i].y2)))){
-            //std::cerr << "here " <<std::endl;
+            ////std::cerr << "here " <<std::endl;
             nets[i].route.push_back(point);
         }
     }
@@ -95,29 +95,29 @@ void Netlist::pattern_schedule() {
     }
     id -= 1;
     batches.clear();
-    std::cerr << "batches are cleared" << std::endl;
+    //std::cerr << "batches are cleared" << std::endl;
     batches.resize(id);
     for(int j=1; j<id+1; j++){
         for (int l=1; l<clique.size();l++){
             if (clique[l]==j){
                 batches[j].nets.emplace_back(nets[l]);
             }
-            //std::cerr << "pshed back " << j << std::endl;
+            ////std::cerr << "pshed back " << j << std::endl;
         }
-        //std::cerr << "pshed back " << j << std::endl;
+        ////std::cerr << "pshed back " << j << std::endl;
     }
-    std::cerr << "Done pushing " << std::endl;
+    //std::cerr << "Done pushing " << std::endl;
     for (int kk = 0; kk<batches.size();kk++){
         for (int m = 0; m<batches[kk].N;m++){
             for (int o = 0; o<m;o++){
                 if (checkRectangleIntersection(batches[kk].nets[m], batches[kk].nets[o])){
-                    std::cerr << " overlapping nets " << o << " " << m << " " << kk << std::endl;
+                    //std::cerr << " overlapping nets " << o << " " << m << " " << kk << std::endl;
                     exit(1);
                 }
             }
         }
     }
-    std::cerr << "Done checking " << std::endl;
+    //std::cerr << "Done checking " << std::endl;
     return;
 }
 
@@ -161,39 +161,39 @@ void Netlist::maze_schedule(Grid_Graph G,float k, int BOX_MIN_DIM) {
     }
     id -= 1;
     batches.clear();
-    std::cerr << "batches are cleared" << std::endl;
+    //std::cerr << "batches are cleared" << std::endl;
     batches.resize(id);
     for(int j=1; j<id; j++){
         for (int l=1; l<clique.size();l++){
             if (clique[l]==j){
                 batches[j].nets.emplace_back(nets[l]);
             }
-            //std::cerr << "pshed back " << j << std::endl;
+            ////std::cerr << "pshed back " << j << std::endl;
         }
-        std::cerr << "pshed back " << j << std::endl;
+        //std::cerr << "pshed back " << j << std::endl;
     }
-    std::cerr << "Done pushing " << std::endl;
+    //std::cerr << "Done pushing " << std::endl;
     for (int kk = 0; kk<batches.size();kk++){
         for (int m = 0; m<batches[kk].N;m++){
             for (int o = 0; o<m;o++){
                 if (overlap(batches[kk].nets[m], batches[kk].nets[o], k, BOX_MIN_DIM)){
-                    std::cerr << " overlapping nets " << o << " " << m << " " << kk << std::endl;
+                    //std::cerr << " overlapping nets " << o << " " << m << " " << kk << std::endl;
                     exit(1);
                 }
             }
         }
     }
-    std::cerr << "Done checking " << std::endl;
+    //std::cerr << "Done checking " << std::endl;
     return;
 }
 
 // Function for simulated annealing pattern routing
 float Netlist::SA_patternroute(Grid_Graph G) {
-    //std::cerr << "Starting SA_patternroute..." << std::endl;
+    ////std::cerr << "Starting SA_patternroute..." << std::endl;
 
     float T = 1000;
     int N = nets.size();
-    //std::cerr << "Initial temperature: " << T << ", Number of nets: " << N << std::endl;
+    ////std::cerr << "Initial temperature: " << T << ", Number of nets: " << N << std::endl;
 
     std::random_device rd;
     std::mt19937 gen(rd());
@@ -204,42 +204,42 @@ float Netlist::SA_patternroute(Grid_Graph G) {
     float new_tot_cost = 0;
     
     // Debug: Processing batches initially
-    //std::cerr << "Processing batches initially..." << std::endl;
+    ////std::cerr << "Processing batches initially..." << std::endl;
     for (auto& batch : batches) {
         new_tot_cost += batch.pattern_route(G, 0, T, 1);
     }
     tot_cost = new_tot_cost;
-    //std::cerr << "Initial total cost: " << tot_cost << std::endl;
+    ////std::cerr << "Initial total cost: " << tot_cost << std::endl;
 
     // Start the simulated annealing process
-    //std::cerr << "Starting simulated annealing process..." << std::endl;
+    ////std::cerr << "Starting simulated annealing process..." << std::endl;
     while (T > 0.01) {
         new_tot_cost = 0;
         
         // Debug: Processing each batch
-        //std::cerr << "Processing batches at T=" << T << std::endl;
+        ////std::cerr << "Processing batches at T=" << T << std::endl;
         for (auto& batch : batches) {
             new_tot_cost += batch.pattern_route(G, 0, T, dist(gen));
         }
         tot_cost = new_tot_cost;
         T *= 0.995;
         costs.push_back(tot_cost);
-        //std::cerr << "Current cost after processing: " << tot_cost << std::endl;
+        ////std::cerr << "Current cost after processing: " << tot_cost << std::endl;
     }
 
     // Save patterns for each batch
-    //std::cerr << "Saving patterns..." << std::endl;
+    ////std::cerr << "Saving patterns..." << std::endl;
     int k = 0;
     for (auto& batch : batches) {
-        //std::cerr << "Saving pattern for batch, starting at index " << k << std::endl;
+        ////std::cerr << "Saving pattern for batch, starting at index " << k << std::endl;
         k += batch.N;
     }
 
     // Write costs to output file
-    //std::cerr << "Writing costs to output file: " << costfile << std::endl;
+    ////std::cerr << "Writing costs to output file: " << costfile << std::endl;
     std::ofstream outputFile(costfile);
     if (!outputFile.is_open()) {
-        //std::cerr << "Error: Unable to open file!" << std::endl;
+        ////std::cerr << "Error: Unable to open file!" << std::endl;
         return -1.0f;
     }
 
@@ -251,10 +251,10 @@ float Netlist::SA_patternroute(Grid_Graph G) {
     }
 
     outputFile.close();
-    std::cerr << "Finished writing costs." << std::endl;
+    //std::cerr << "Finished writing costs." << std::endl;
 
-    std::cerr << "Total final cost: " << tot_cost << std::endl;
-    std::cerr << "Finished SA_patternroute." << std::endl;
+    //std::cerr << "Total final cost: " << tot_cost << std::endl;
+    //std::cerr << "Finished SA_patternroute." << std::endl;
     return tot_cost;
 }
 
@@ -264,16 +264,19 @@ void Netlist::mazer(Grid_Graph G,float k, int NUM_THREADS,int BOX_MIN_DIM, int M
     std::vector<char> Sdir1(G.M * G.N);
     std::vector<float> Sdist2(G.M * G.N);
     std::vector<char> Sdir2(G.M * G.N);
+    int iterations = 0;
     #pragma omp parallel num_threads(NUM_THREADS) 
     {
         for (int i=0; i<MAZE_ROUTE_ITER; i++){
-            std::cerr << batches.size();
+            //std::cerr << batches.size();
             for (int j=0; j<batches.size(); j++) {
-                std::cerr << "Maze routing a batch " << std::endl;
+                //std::cerr << "Maze routing a batch " << std::endl;
                 #pragma omp barrier
                 batches[j].maze_route(G, k, 2, Sdist1, Sdir1, Sdist2, Sdir2, NUM_THREADS, BOX_MIN_DIM);
+                iterations +=1;
+                std::cerr << "Maze route happened " << iterations << " Number of times" << std::endl;
             }
-            std::cerr << "Iteration " << i << std::endl;
+            //std::cerr << "Iteration " << i << std::endl;
         }
     }
 }
